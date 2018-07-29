@@ -1,0 +1,61 @@
+﻿<Window x:Class="SnapshotAndAirdrop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnapshotAndAirdrop" 
+        mc:Ignorable="d"
+        Title="MainWindow" Height="900" Width="1300" ResizeMode="NoResize">
+    <Grid>
+        <TabControl HorizontalAlignment="Left" Height="871" VerticalAlignment="Top" Width="1294">
+            <TabItem Header="Snapshot" FontSize="20" Margin="-2,-2,-310,-18">
+                <Grid Background="#FFE5E5E5" Margin="0,14,0,-6">
+                    <Grid Margin="0,0,0,442">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="10*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40*"/>
+                            <ColumnDefinition Width="100*"/>
+                            <ColumnDefinition Width="10*"/>
+                            <ColumnDefinition Width="40*"/>
+                            <ColumnDefinition Width="100*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="主网/测试网" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                        <ComboBox HorizontalAlignment="Left" Margin="0,20,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="394" Height="45" Grid.Column="1" Grid.Row="0">
+                            <ComboBoxItem Content="主网" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <ComboBoxItem Content="测试网" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </ComboBox>
+
+                        <Label Content="数据库地址" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                        <TextBox  Height="50" Grid.ColumnSpan="4" Grid.Column="1" Grid.Row="1"/>
+
+                        <Label Content="快照高度" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                        <TextBox  Height="50" Grid.Column="1" Grid.Row="2"/>
+                        <Label Content="快照币种" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="3" Grid.Row="2"/>
+                        <ComboBox Name="CB_assetType" HorizontalAlignment="Left" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center"  Margin="0,20,0,0" VerticalAlignment="Top" Width="394" Height="45" Grid.Column="4" Grid.Row="2">
+                            <ComboBoxItem Content="NEO" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                            <ComboBoxItem Content="NNC" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </ComboBox>
+
+                        <Label Content="入库库名" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                        <TextBox Height="50" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="4"/>
+
+                        <Button Content="确定" Grid.Column="1" Grid.Row="4" Click="StartSnapshot" Grid.ColumnSpan="3" Margin="292,0,34,0"/>
+                    </Grid>
+                    <Grid>
+                        <TextBlock HorizontalAlignment="Left" Margin="0,442,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="384" Width="1288"/>
+
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Airdrop" FontSize="20" Margin="310,0,-646,-18">
+                <Grid Background="#FFE5E5E5" Margin="0,14,0,0"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
