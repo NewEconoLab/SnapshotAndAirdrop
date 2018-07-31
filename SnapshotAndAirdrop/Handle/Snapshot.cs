@@ -16,40 +16,43 @@ namespace SnapshotAndAirdrop.Handle
         {
             //分析参数
             string assetid = (string)args[0];
-            BigInteger height = (BigInteger)args[1];
+            decimal height = decimal.Parse((string)args[1]);
             string snapshopColl = (string)args[2];
             //获取已有地址个数 分段处理
             var count = mongoHelper.GetDataCount(Config.Address_Conn, Config.Address_DB, Config.Address_Coll);
-            var looptime = count / 1000 + 1;
-            for (var i = 0; i < looptime; i++)
+            var looptime = count / 10000 + 1;
+            for (var i = 1; i < looptime+1; i++)
             {
-                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Address_Conn, Config.Address_DB, Config.Address_Coll, "{}", 1000, i);
+                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Address_Conn, Config.Address_DB, Config.Address_Coll, "{}", 10000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
-                    string address = JsonConvert.DeserializeObject<Address>(Ja_addressInfo[i].ToString())._Addr;
+                    string address = JsonConvert.DeserializeObject<Address>(Ja_addressInfo[ii].ToString()).__Addr;
                     //获取这个address的所有的utxo
-                    string findFliter = JsonConvert.SerializeObject(new UTXO() { addr=address,asset=assetid});
+                    string findFliter = JsonConvert.SerializeObject(new UTXO() { __Addr=address,__Asset=assetid});
+                    findFliter =ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
+
                     MyJson.JsonNode_Array utxos = mongoHelper.GetData(Config.UTXO_Conn, Config.UTXO_DB, Config.UTXO_Coll, findFliter);
 
-                    BigInteger value = 0;
+                    decimal value = 0;
                     foreach (MyJson.JsonNode_Object j in utxos)
                     {
                         UTXO uTXO = JsonConvert.DeserializeObject<UTXO>(j.ToString());
-                         if (uTXO._CreateHeight <= height && (uTXO._UseHeight > height || uTXO._UseHeight == -1))
-                            value += uTXO._UseHeight;
+                         if (uTXO.__CreateHeight <= height && (uTXO.__UseHeight > height || uTXO.__UseHeight == -1))
+                            value += uTXO.__Value;
                     }
+                    deleRuntime(((i - 1) * 10000 + ii) + "/" + count);
                     if (value > 0)
                     {
                         Snapshot snapshot = new Snapshot();
-                        snapshot.addr = address;
-                        snapshot.balance = value;
-                        findFliter = JsonConvert.SerializeObject(new Snapshot() {addr = address });
-                        mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, findFliter, JsonConvert.SerializeObject(snapshot));
-                        deleRuntime((i*1000+ii)+"/" + count,address+":"+value);
+                        snapshot.__Addr = address;
+                        snapshot.__Balance = value;
+                        findFliter = JsonConvert.SerializeObject(new Snapshot() {__Addr = address });
+                        findFliter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
+                        mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, findFliter, ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict()));
                     }
                 }
             }
-            deleResult();
+            deleResult("完成");
         }
     }
 
@@ -59,19 +62,89 @@ namespace SnapshotAndAirdrop.Handle
         {
             //分析参数
             string assetid = (string)args[0];
-            BigInteger height = (BigInteger)args[1];
+            decimal height = decimal.Parse((string)args[1]);
             string snapshopColl = (string)args[2];
 
             //获取这个资产的所有的nep5交易来进行资产的分析
             NEP5Transfer nEP5Transfer = new NEP5Transfer();
-            nEP5Transfer.asset = assetid;
-            var count = mongoHelper.GetDataCount(Config.Address_Conn, Config.Address_DB, Config.Address_Coll,JsonConvert.SerializeObject(nEP5Transfer));
+            nEP5Transfer.__Asset = assetid;
+            //先清除原有数据
+            mongoHelper.DelData(Config.Snapshot_Conn,Config.Snapshot_DB,snapshopColl,"{}");
+
+            //分批录入数据
+            string findFilter = JsonConvert.SerializeObject(nEP5Transfer);
+            findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
+            var count = mongoHelper.GetDataCount(Config.NEP5Transfer_Conn, Config.NEP5Transfer_DB, Config.NEP5Transfer_Coll, findFilter);
             var looptime = count / 1000 + 1;
-            for (var i = 0; i < looptime; i++)
+            for (var i = 1; i < looptime+1; i++)
             {
+                //var time1 = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
+                string sortFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Blockindex = 1});
+                sortFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(sortFilter).AsDict());
+                findFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Asset=assetid});
+                findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
+                MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetDataPages(Config.NEP5Transfer_Conn, Config.NEP5Transfer_DB, Config.NEP5Transfer_Coll, sortFilter, 1000, i,findFilter);
+                for (var ii = 0; ii < Ja_Nep5transferInfo.Count; ii++)
+                {
+                    var time2 = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
+                    var str = Ja_Nep5transferInfo[ii].ToString();
+                    decimal blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                    if (blockindex > height)
+                        continue;
 
+                    string from = JsonConvert.DeserializeObject<NEP5Transfer>(str).__From;
+                    string to = JsonConvert.DeserializeObject<NEP5Transfer>(str).__To;
+                    decimal value = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value;
+
+
+                    //更新from在snapshot中的value
+                    if (!string.IsNullOrEmpty(from))
+                    {
+                        string findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from });
+                        findFliter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
+                        MyJson.JsonNode_Array JA_SnapshotInfo = mongoHelper.GetData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, findFliter);
+
+                        decimal balance = 0;
+                        if (JA_SnapshotInfo.Count <= 0)
+                        {
+                            balance -= value;
+                        }
+                        else
+                        {
+                            balance = JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance;
+                            balance = balance - value;
+                        }
+
+                        string whereFliter = findFliter;
+                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from, __Balance = balance });
+                        findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
+                        mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, whereFliter, findFliter);
+                    }
+                    if (!string.IsNullOrEmpty(to))
+                    {
+                        //更新to在snapshot中的value
+                        string findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to });
+                        findFliter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
+                        MyJson.JsonNode_Array JA_SnapshotInfo = mongoHelper.GetData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, findFliter);
+                        decimal balance = 0;
+                        if (JA_SnapshotInfo.Count <= 0)
+                        {
+                            balance += value;
+                        }
+                        else
+                        {
+                            balance = JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance;
+                            balance = balance + value;
+                        }
+                        string whereFliter = findFliter;
+                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to, __Balance = balance });
+                        findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
+                        mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, whereFliter, findFliter);
+                    }
+                    deleRuntime(((i - 1) * 1000 + ii) + "/" + count);
+                }
             }
-
+            deleResult("完成");
         }
     }
 }
