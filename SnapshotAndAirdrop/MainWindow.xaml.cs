@@ -210,16 +210,24 @@ namespace SnapshotAndAirdrop
                 MessageBox.Show("填写正确的库名");
             }
 
-            MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Snapshot_Conn, Config.Snapshot_DB, snapshotColl, "{}", 10000, 1);
             decimal balance = 0;
-            for (var i = 0; i < Ja_addressInfo.Count; i++)
+
+            var count = mongoHelper.GetDataCount(Config.Snapshot_Conn, Config.Snapshot_DB, snapshotColl);
+            var looptime = count / 10000 + 1;
+            for (var i = 1; i < looptime + 1; i++)
             {
-                if (Ja_addressInfo[i].AsDict().ContainsKey("balance"))
+                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Snapshot_Conn, Config.Snapshot_DB, snapshotColl, "{}", 10000, i);
+                for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
-                    Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[i].AsDict().ToString());
-                    balance += decimal.Parse(snapshot.balance);
+                    if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
+                    {
+                        Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].AsDict().ToString());
+                        balance += decimal.Parse(snapshot.balance);
+                        Console.WriteLine(snapshot.addr + "   " + decimal.Parse(snapshot.balance) + "    " + balance);
+                    }
                 }
             }
+
             this.total.Content = balance;
         }
 
