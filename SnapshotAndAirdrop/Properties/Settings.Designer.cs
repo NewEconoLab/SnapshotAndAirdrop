@@ -22,5 +22,14 @@ namespace SnapshotAndAirdrop.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("12")]
+        public string ttt {
+            get {
+                return ((string)(this["ttt"]));
+            }
+        }
     }
 }

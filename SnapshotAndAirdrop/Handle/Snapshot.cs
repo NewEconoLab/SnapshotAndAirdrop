@@ -38,14 +38,14 @@ namespace SnapshotAndAirdrop.Handle
                     {
                         UTXO uTXO = JsonConvert.DeserializeObject<UTXO>(j.ToString());
                          if (uTXO.__CreateHeight <= height && (uTXO.__UseHeight > height || uTXO.__UseHeight == -1))
-                            value += uTXO.__Value;
+                            value +=decimal.Parse(uTXO.__Value);
                     }
                     deleRuntime(((i - 1) * 10000 + ii) + "/" + count);
                     if (value > 0)
                     {
                         Snapshot snapshot = new Snapshot();
                         snapshot.__Addr = address;
-                        snapshot.__Balance = value;
+                        snapshot.__Balance = value.ToString();
                         findFliter = JsonConvert.SerializeObject(new Snapshot() {__Addr = address });
                         findFliter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
                         mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, findFliter, ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict()));
@@ -88,13 +88,13 @@ namespace SnapshotAndAirdrop.Handle
                 {
                     var time2 = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000;
                     var str = Ja_Nep5transferInfo[ii].ToString();
-                    decimal blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                    decimal blockindex =JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
                     if (blockindex > height)
                         continue;
 
                     string from = JsonConvert.DeserializeObject<NEP5Transfer>(str).__From;
                     string to = JsonConvert.DeserializeObject<NEP5Transfer>(str).__To;
-                    decimal value = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value;
+                    decimal value =decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value);
 
 
                     //更新from在snapshot中的value
@@ -111,12 +111,13 @@ namespace SnapshotAndAirdrop.Handle
                         }
                         else
                         {
-                            balance = JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance;
+                            balance =decimal.Parse(JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance);
                             balance = balance - value;
+                            Console.WriteLine(from+"    "+ value+"  "+ balance);
                         }
 
                         string whereFliter = findFliter;
-                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from, __Balance = balance });
+                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from, __Balance = balance.ToString() });
                         findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
                         mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, whereFliter, findFliter);
                     }
@@ -133,11 +134,11 @@ namespace SnapshotAndAirdrop.Handle
                         }
                         else
                         {
-                            balance = JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance;
+                            balance =decimal.Parse(JsonConvert.DeserializeObject<Snapshot>(JA_SnapshotInfo[0].AsDict().ToString()).__Balance);
                             balance = balance + value;
                         }
                         string whereFliter = findFliter;
-                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to, __Balance = balance });
+                        findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to, __Balance = balance.ToString() });
                         findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
                         mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, whereFliter, findFliter);
                     }

@@ -217,7 +217,7 @@ namespace SnapshotAndAirdrop
                 if (Ja_addressInfo[i].AsDict().ContainsKey("balance"))
                 {
                     Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[i].AsDict().ToString());
-                    balance += snapshot.balance;
+                    balance += decimal.Parse(snapshot.balance);
                 }
             }
             this.total.Content = balance;

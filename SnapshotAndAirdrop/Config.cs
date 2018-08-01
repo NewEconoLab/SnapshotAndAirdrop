@@ -21,26 +21,26 @@ namespace SnapshotAndAirdrop
         {
             { "NNC", "0xfc732edee1efdf968c23c20a9628eaa5a6ccb934" },
             { "SDT", "0xa4f408df2a1ec2a950ec5fd06d7b9dc5f83b9e73" },
-            { "NNC_test","0x8826206138420e79936123a18176c597cd173173"}
+            { "NNC_test","0xc8871e511157f8f0078a21578943a163400bc86c"}
         };
 
         public static string url = "https://api.nel.group/api/testnet";
-
         //Address
-        public static string Address_Conn = "mongodb://nelData_mainnet:NELqingmingzi3345@dds-bp1b36419665fdd41167-pub.mongodb.rds.aliyuncs.com:3717,dds-bp1b36419665fdd42489-pub.mongodb.rds.aliyuncs.com:3717/NeoBlockData_mainnet?replicaSet=mgset-4977005";
-        public static string Address_DB = "NeoBlockData_mainnet";
-        public static string Address_Coll = "address";
+        public static string Address_Conn = "";
+        public static string Address_DB = "";
+        public static string Address_Coll = "";
         //UTXO
-        public static string UTXO_Conn = "mongodb://nelData_mainnet:NELqingmingzi3345@dds-bp1b36419665fdd41167-pub.mongodb.rds.aliyuncs.com:3717,dds-bp1b36419665fdd42489-pub.mongodb.rds.aliyuncs.com:3717/NeoBlockData_mainnet?replicaSet=mgset-4977005";
-        public static string UTXO_DB = "NeoBlockData_mainnet";
-        public static string UTXO_Coll = "utxo";
+        public static string UTXO_Conn = "";
+        public static string UTXO_DB = "";
+        public static string UTXO_Coll = "";
         //NEP5Transfer
-        public static string NEP5Transfer_Conn = "mongodb://nelData_mainnet:NELqingmingzi3345@dds-bp1b36419665fdd41167-pub.mongodb.rds.aliyuncs.com:3717,dds-bp1b36419665fdd42489-pub.mongodb.rds.aliyuncs.com:3717/NeoBlockData_mainnet?replicaSet=mgset-4977005";
-        public static string NEP5Transfer_DB = "NeoBlockData_mainnet";
-        public static string NEP5Transfer_Coll = "NEP5transfer";
+        public static string NEP5Transfer_Conn = "";
+        public static string NEP5Transfer_DB = "";
+        public static string NEP5Transfer_Coll = "";
         //快照
-        public static string Snapshot_Conn = "mongodb://snapshot:qmzNEL3345@dds-bp1b36419665fdd41167-pub.mongodb.rds.aliyuncs.com:3717,dds-bp1b36419665fdd42489-pub.mongodb.rds.aliyuncs.com:3717/SnapshotAndAirdrop?replicaSet=mgset-4977005";
-        public static string Snapshot_DB = "SnapshotAndAirdrop";
+        public static string Snapshot_Conn = "";
+        public static string Snapshot_DB = "";
+
     }
 
 
@@ -70,9 +70,9 @@ namespace SnapshotAndAirdrop
         //根据实际情况修改字段名称
         public string addr;
         public string asset;
-        public decimal value;
-        public decimal createHeight;
-        public decimal useHeight;
+        public string value;
+        public Int32 createHeight;
+        public Int32 useHeight;
 
 
         public string __Addr
@@ -97,7 +97,7 @@ namespace SnapshotAndAirdrop
                 asset = value;
             }
         }
-        public decimal __Value
+        public string __Value
         {
             get
             {
@@ -108,7 +108,7 @@ namespace SnapshotAndAirdrop
                 this.value = value;
             }
         }
-        public decimal __CreateHeight
+        public Int32 __CreateHeight
         {
             get
             {
@@ -119,7 +119,7 @@ namespace SnapshotAndAirdrop
                 createHeight = value;
             }
         }
-        public decimal __UseHeight
+        public Int32 __UseHeight
         {
             get
             {
@@ -135,14 +135,14 @@ namespace SnapshotAndAirdrop
     //Nep5Transfer
     public struct NEP5Transfer
     {
-        public decimal blockindex;
+        public Int32 blockindex;
         public string asset;
         public string from;
         public string to;
-        public decimal value;
+        public string value;
 
 
-        public decimal __Blockindex
+        public Int32 __Blockindex
         {
             get
             {
@@ -190,7 +190,7 @@ namespace SnapshotAndAirdrop
             }
         }
         
-        public decimal __Value
+        public string __Value
         {
             get
             {
@@ -207,8 +207,8 @@ namespace SnapshotAndAirdrop
     public struct Snapshot
     {
         public string addr;
-        public decimal balance;
-        public decimal send;
+        public string balance;
+        public string send;
         public string txid;
 
 
@@ -234,7 +234,7 @@ namespace SnapshotAndAirdrop
                 txid = value;
             }
         }
-        public decimal __Balance
+        public string __Balance
         {
             get
             {
@@ -245,7 +245,7 @@ namespace SnapshotAndAirdrop
                 balance = value;
             }
         }
-        public decimal __Send
+        public string __Send
         {
             get
             {

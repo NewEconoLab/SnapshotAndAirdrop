@@ -105,8 +105,8 @@ namespace SnapshotAndAirdrop.Handle
                     {
                         Snapshot snapshot = new Snapshot();
                         snapshot.__Addr = addr;
-                        snapshot.__Balance = balance;
-                        snapshot.__Send = balance * ratio;
+                        snapshot.__Balance = balance.ToString();
+                        snapshot.__Send = (balance * ratio).ToString();
                         snapshot.__Txid = j_result["txid"].AsString();
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
