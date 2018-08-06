@@ -127,6 +127,7 @@ namespace SnapshotAndAirdrop.Handle
                         snapshot.__Balance = balance.ToString();
                         snapshot.__Send = ((decimal)send/ decimals).ToString();
                         snapshot.__Txid = j_result["txid"].AsString();
+                        snapshot.__SendAssetId = assetid;
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
                         string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict());

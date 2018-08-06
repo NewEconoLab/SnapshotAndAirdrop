@@ -241,6 +241,7 @@ namespace SnapshotAndAirdrop
         public string balance;
         public string send;
         public string txid;
+        public string sendAssetId;
 
 
         public string __Addr
@@ -285,6 +286,18 @@ namespace SnapshotAndAirdrop
             set
             {
                 send = value;
+            }
+        }
+
+        public string __SendAssetId
+        {
+            get
+            {
+                return sendAssetId;
+            }
+            set
+            {
+                sendAssetId = value;
             }
         }
     }
