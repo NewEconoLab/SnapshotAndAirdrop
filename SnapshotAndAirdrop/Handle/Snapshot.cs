@@ -141,7 +141,7 @@ namespace SnapshotAndAirdrop.Handle
                         }
                     }
 
-                    deleRuntime(((i - 1) * 1000 + ii) + "/" + count);
+                    deleRuntime(((i - 1) * 1000 + ii+1) + "/" + count);
                 }
             }
             deleResult("完成");

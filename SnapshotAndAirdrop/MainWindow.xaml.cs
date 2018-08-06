@@ -71,11 +71,17 @@ namespace SnapshotAndAirdrop
 
         }
 
-
+        private bool _lock = false;
 
 
         private void StartSnapshot(object sender, RoutedEventArgs e)
         {
+            if (_lock)
+            {
+                MessageBox.Show("正在处理中~");
+                return;
+            }
+            _lock = true;
             this.details.Items.Clear();
             ListBoxItem item = new ListBoxItem();
             item.Content = "";
@@ -90,8 +96,8 @@ namespace SnapshotAndAirdrop
                 AssetSnapshotTask assetSnapshotTask = new AssetSnapshotTask();
                 assetSnapshotTask.deleRuntime = null;
                 assetSnapshotTask.deleResult = null;
-                assetSnapshotTask.deleRuntime += RuntimeCallBack;
-                assetSnapshotTask.deleResult += ResultCallBack;
+                assetSnapshotTask.deleRuntime += RuntimeCallBack_Snapshot;
+                assetSnapshotTask.deleResult += ResultCallBack_Snapshot;
                 var assetid = Config.Ins.assets[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                 var height = this.height.Text;
                 var snapshotColl = this.snapshotColl.Text;
@@ -105,8 +111,8 @@ namespace SnapshotAndAirdrop
                 Nep5SnapshotTask nep5SnapshotTask = new Nep5SnapshotTask();
                 nep5SnapshotTask.deleResult = null;
                 nep5SnapshotTask.deleRuntime = null;
-                nep5SnapshotTask.deleRuntime += RuntimeCallBack;
-                nep5SnapshotTask.deleResult += ResultCallBack;
+                nep5SnapshotTask.deleRuntime += RuntimeCallBack_Snapshot;
+                nep5SnapshotTask.deleResult += ResultCallBack_Snapshot;
 
                 var assetid = Config.Ins.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                 var height = this.height.Text;
@@ -128,26 +134,59 @@ namespace SnapshotAndAirdrop
                 this.snapshotColl.Text = "Snapshot" + "_" + (this.assetId.SelectedItem as ComboBoxItem).Content.ToString() + "_" + this.height.Text;
         }
 
-        private void RuntimeCallBack(params string[] args)
+        private void RuntimeCallBack_Snapshot(params string[] args)
         {
             Dispatcher.Invoke((Action)delegate () {
                 (this.details.Items[0] as ListBoxItem).Content = args[0];
             });
         }
 
-        private void ResultCallBack(params string[] args)
+        private void ResultCallBack_Snapshot(params string[] args)
         {
             Dispatcher.Invoke((Action)delegate () {
+                _lock = false;
                 (this.details.Items[1] as ListBoxItem).Content = args[0];
+            });
+        }
+
+        private void RuntimeCallBack_Airdrop(params string[] args)
+        {
+            Dispatcher.Invoke((Action)delegate () {
+                (this.details2.Items[0] as ListBoxItem).Content = args[0];
+            });
+        }
+
+        private void ResultCallBack_Airdrop(params string[] args)
+        {
+            Dispatcher.Invoke((Action)delegate () {
+                _lock = false;
+                (this.details2.Items[1] as ListBoxItem).Content = args[0];
             });
         }
 
         private void StartAirdrop(object sender, RoutedEventArgs e)
         {
-            string assetid = "";
-            if (Config.Ins.nep5s.ContainsKey((this.assetId.SelectedItem as ComboBoxItem).Content.ToString()))
+            if (_lock)
             {
-                assetid = Config.Ins.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+                MessageBox.Show("正在处理中~");
+                return;
+            }
+            _lock = true;
+
+            this.details2.Items.Clear();
+            ListBoxItem item = new ListBoxItem();
+            item.Content = "";
+            this.details2.Items.Add(item);
+
+            ListBoxItem item2 = new ListBoxItem();
+            item2.Content = "";
+            this.details2.Items.Add(item2);
+
+
+            string assetid = "";
+            if (Config.Ins.nep5s.ContainsKey((this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()))
+            {
+                assetid = Config.Ins.nep5s[(this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
             }
 
             var ratio = this.ratio.Text;
@@ -155,6 +194,7 @@ namespace SnapshotAndAirdrop
 
             if (priKey == null || string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(ratio) || string.IsNullOrEmpty(snapshotColl))
             {
+                _lock = false;
                 MessageBox.Show("参数错误");
                 return;
             }
@@ -172,14 +212,17 @@ namespace SnapshotAndAirdrop
                 AirdropTask airdropTask = new AirdropTask();
                 airdropTask.deleResult = null;
                 airdropTask.deleRuntime = null;
-                airdropTask.deleRuntime += RuntimeCallBack;
-                airdropTask.deleResult += ResultCallBack;
-                airdropTask.StartTask(priKey, assetId, ratio, snapshotColl);
+                airdropTask.deleRuntime += RuntimeCallBack_Airdrop;
+                airdropTask.deleResult += ResultCallBack_Airdrop;
+                airdropTask.StartTask(priKey, assetid, ratio, snapshotColl);
             }
 
         }
 
         byte[] priKey;
+
+        public bool Lock { get => _lock; set => _lock = value; }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             try

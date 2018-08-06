@@ -25,8 +25,8 @@ namespace SnapshotAndAirdrop.Handle
 
             //获取已有的所有的地址 （分段）
             var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl);
-            count = count / 1000 + 1;
-            for (var i = 1; i < count + 1; i++)
+            var looptime = count / 1000 + 1;
+            for (var i = 1; i < looptime + 1; i++)
             {
                 Console.WriteLine("总共要循环：" + count + "~~现在循环到：" + i);
                 MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, "{}", 1000, i);
@@ -38,8 +38,10 @@ namespace SnapshotAndAirdrop.Handle
                     var addr = snapshot.__Addr;
                     var balance = decimal.Parse(snapshot.__Balance.ToString());
                     Send(priKey, assetid,addr, balance,ratio, snapshopColl);
+                    deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
             }
+            deleResult("完成");
 
         }
 
@@ -48,15 +50,33 @@ namespace SnapshotAndAirdrop.Handle
         {
             try
             {
+                //获取资产的精度
+                byte[] postdata;
+                var url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "getnep5asset", out postdata, new MyJson.JsonNode_ValueString(assetid));
+                var result = HttpHelper.HttpPost(url, postdata);
+                var Jo_result = MyJson.Parse(result) as MyJson.JsonNode_Object;
+                decimal decimals = 0;
+                if (Jo_result.ContainsKey("result"))
+                {
+                    decimals = (decimal)Math.Pow(10, Jo_result["result"].AsList()[0].AsDict()["decimals"].AsInt());
+                }
+                else
+                {
+                    return;
+                }
+
+
                 byte[] data = null;
 
                 byte[] pubKey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(priKey);
                 string address = ThinNeo.Helper.GetAddressFromPublicKey(pubKey);
 
+                if (addr == address)
+                    return;
                 //MakeTran
                 ThinNeo.Transaction tran = new Transaction();
                 {
-
+                    BigInteger send = (BigInteger)(balance * ratio * decimals);
                     using (ScriptBuilder sb = new ScriptBuilder())
                     {
                         MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();
@@ -71,7 +91,7 @@ namespace SnapshotAndAirdrop.Handle
                         sb.Emit(ThinNeo.VM.OpCode.DROP);
                         array.AddArrayValue("(addr)" + address);
                         array.AddArrayValue("(addr)" + addr);
-                        array.AddArrayValue("(int)" + balance* ratio);
+                        array.AddArrayValue("(int)" + send);
                         sb.EmitParamJson(array);
                         sb.EmitPushString("transfer");
                         sb.EmitAppCall(new Hash160(assetid));
@@ -95,10 +115,9 @@ namespace SnapshotAndAirdrop.Handle
                     tran.AddWitness(signdata, pubKey, address);
                     var trandata = tran.GetRawData();
                     var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
-                    Console.WriteLine(strtrandata);
-                    byte[] postdata;
-                    var url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
-                    var result = HttpHelper.HttpPost(url, postdata);
+
+                    url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+                    result = HttpHelper.HttpPost(url, postdata);
                     Console.WriteLine(result);
                     var j_result = MyJson.Parse(result).AsDict()["result"].AsList()[0].AsDict();
                     if (j_result["sendrawtransactionresult"].AsBool())
@@ -106,7 +125,7 @@ namespace SnapshotAndAirdrop.Handle
                         Snapshot snapshot = new Snapshot();
                         snapshot.__Addr = addr;
                         snapshot.__Balance = balance.ToString();
-                        snapshot.__Send = (balance * ratio).ToString();
+                        snapshot.__Send = ((decimal)send/ decimals).ToString();
                         snapshot.__Txid = j_result["txid"].AsString();
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
