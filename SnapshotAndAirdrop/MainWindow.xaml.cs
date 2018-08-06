@@ -36,7 +36,7 @@ namespace SnapshotAndAirdrop
             this.assetType.SelectedIndex = 0;
             this.assetId2.Items.Clear();
 
-            foreach (string key in Config.nep5s.Keys)
+            foreach (string key in Config.Ins.nep5s.Keys)
             {
                 ComboBoxItem comboBoxItem = new ComboBoxItem();
                 comboBoxItem.Content = key;
@@ -51,7 +51,7 @@ namespace SnapshotAndAirdrop
             if (this.assetType.SelectedIndex == 0)
             {//全局资产
 
-                foreach (string key in Config.assets.Keys)
+                foreach (string key in Config.Ins.assets.Keys)
                 {
                     ComboBoxItem comboBoxItem = new ComboBoxItem();
                     comboBoxItem.Content = key;
@@ -60,7 +60,7 @@ namespace SnapshotAndAirdrop
             }
             else if (this.assetType.SelectedIndex == 1)
             {//nep5资产
-                foreach (string key in Config.nep5s.Keys)
+                foreach (string key in Config.Ins.nep5s.Keys)
                 {
                     ComboBoxItem comboBoxItem = new ComboBoxItem();
                     comboBoxItem.Content = key;
@@ -92,7 +92,7 @@ namespace SnapshotAndAirdrop
                 assetSnapshotTask.deleResult = null;
                 assetSnapshotTask.deleRuntime += RuntimeCallBack;
                 assetSnapshotTask.deleResult += ResultCallBack;
-                var assetid = Config.assets[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()];
+                var assetid = Config.Ins.assets[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                 var height = this.height.Text;
                 var snapshotColl = this.snapshotColl.Text;
                 if (string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(height) || string.IsNullOrEmpty(snapshotColl))
@@ -108,7 +108,7 @@ namespace SnapshotAndAirdrop
                 nep5SnapshotTask.deleRuntime += RuntimeCallBack;
                 nep5SnapshotTask.deleResult += ResultCallBack;
 
-                var assetid = Config.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()];
+                var assetid = Config.Ins.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                 var height = this.height.Text;
                 var snapshotColl = this.snapshotColl.Text;
                 if (string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(height) || string.IsNullOrEmpty(snapshotColl))
@@ -145,9 +145,9 @@ namespace SnapshotAndAirdrop
         private void StartAirdrop(object sender, RoutedEventArgs e)
         {
             string assetid = "";
-            if (Config.nep5s.ContainsKey((this.assetId.SelectedItem as ComboBoxItem).Content.ToString()))
+            if (Config.Ins.nep5s.ContainsKey((this.assetId.SelectedItem as ComboBoxItem).Content.ToString()))
             {
-                assetid = Config.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()];
+                assetid = Config.Ins.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
             }
 
             var ratio = this.ratio.Text;
@@ -212,11 +212,11 @@ namespace SnapshotAndAirdrop
 
             decimal balance = 0;
 
-            var count = mongoHelper.GetDataCount(Config.Snapshot_Conn, Config.Snapshot_DB, snapshotColl);
+            var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl);
             var looptime = count / 10000 + 1;
             for (var i = 1; i < looptime + 1; i++)
             {
-                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Snapshot_Conn, Config.Snapshot_DB, snapshotColl, "{}", 10000, i);
+                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 10000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
                     if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
@@ -249,11 +249,11 @@ namespace SnapshotAndAirdrop
             try
             {
                 string assetid = "";
-                if (Config.nep5s.ContainsKey((this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()))
+                if (Config.Ins.nep5s.ContainsKey((this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()))
                 {
-                    assetid = Config.nep5s[(this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()];
+                    assetid = Config.Ins.nep5s[(this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                     byte[] postdata;
-                    var url = HttpHelper.MakeRpcUrlPost(Config.url, "getnep5balanceofaddress", out postdata, new MyJson.JsonNode_ValueString(assetid), new MyJson.JsonNode_ValueString(address));
+                    var url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "getnep5balanceofaddress", out postdata, new MyJson.JsonNode_ValueString(assetid), new MyJson.JsonNode_ValueString(address));
                     var result = HttpHelper.HttpPost(url, postdata);
                     MyJson.JsonNode_Array jsonArray = MyJson.Parse(result).AsDict()["result"].AsList();
                     this.balance.Content = jsonArray[0].AsDict()["nep5balance"];

@@ -24,12 +24,12 @@ namespace SnapshotAndAirdrop.Handle
 
 
             //获取已有的所有的地址 （分段）
-            var count = mongoHelper.GetDataCount(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl);
+            var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl);
             count = count / 1000 + 1;
             for (var i = 1; i < count + 1; i++)
             {
                 Console.WriteLine("总共要循环：" + count + "~~现在循环到：" + i);
-                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, "{}", 1000, i);
+                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, "{}", 1000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
                     Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].ToString());
@@ -97,7 +97,7 @@ namespace SnapshotAndAirdrop.Handle
                     var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
                     Console.WriteLine(strtrandata);
                     byte[] postdata;
-                    var url = HttpHelper.MakeRpcUrlPost(Config.url, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+                    var url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
                     var result = HttpHelper.HttpPost(url, postdata);
                     Console.WriteLine(result);
                     var j_result = MyJson.Parse(result).AsDict()["result"].AsList()[0].AsDict();
@@ -111,7 +111,7 @@ namespace SnapshotAndAirdrop.Handle
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
                         string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict());
-                        mongoHelper.ReplaceData(Config.Snapshot_Conn, Config.Snapshot_DB, snapshopColl, whereFilter, str);
+                        mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFilter, str);
                     }
                     else
                     {
