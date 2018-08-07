@@ -44,7 +44,11 @@ namespace SnapshotAndAirdrop
         //快照
         public string Snapshot_Conn { private set; get; }
         public string Snapshot_DB { private set; get; }
-         
+        //nns奖励发放
+        public string Applyfornnc_Conn { private set; get; }
+        public string Applyfornnc_DB { private set; get; }
+        public string Applyfornnc_Coll { private set; get; }
+
 
         public Config()
         {
@@ -69,6 +73,9 @@ namespace SnapshotAndAirdrop
             NEP5Transfer_Coll = config["NEP5Transfer_Coll"];
             Snapshot_Conn = config["Snapshot_Conn"];
             Snapshot_DB = config["Snapshot_DB"];
+            Applyfornnc_Conn = config["Applyfornnc_Conn"];
+            Applyfornnc_DB = config["Applyfornnc_DB"];
+            Applyfornnc_Coll = config["Applyfornnc_Coll"];
         }
 
 
@@ -298,6 +305,219 @@ namespace SnapshotAndAirdrop
             set
             {
                 sendAssetId = value;
+            }
+        }
+    }
+
+
+    public struct NnsAward
+    {
+        public string firstName;
+        public string lastName;
+        public string country;
+        public string str_type;
+        public string idNumber;
+        public string passportNumber;
+        public string passportPicture;
+        public string email;
+        public string mobileNumber;
+        public string walletAddress;
+        public string targetwalletAddress;
+        public Int32 state;
+        public Int32 commitTime;
+        public Int32 checkTime;
+        public string txid;
+        public string sendValue;
+
+        public string __FirstName
+        {
+            get
+            {
+                return firstName;
+            }
+            set
+            {
+                firstName = value;
+            }
+        }
+
+        public string __LastName
+        {
+            get
+            {
+                return lastName;
+            }
+            set
+            {
+                lastName = value;
+            }
+        }
+
+        public string __Country
+        {
+            get
+            {
+                return country;
+            }
+            set
+            {
+                country = value;
+            }
+        }
+
+        public string __Str_type
+        {
+            get
+            {
+                return str_type;
+            }
+            set
+            {
+                str_type = value;
+            }
+        }
+
+        public string __IdNumber
+        {
+            get
+            {
+                return idNumber;
+            }
+            set
+            {
+                idNumber = value;
+            }
+        }
+
+        public string __PassportNumber
+        {
+            get
+            {
+                return passportNumber;
+            }
+            set
+            {
+                passportNumber = value;
+            }
+        }
+
+        public string __PassportPicture
+        {
+            get
+            {
+                return passportPicture;
+            }
+            set
+            {
+                passportPicture = value;
+            }
+        }
+
+        public string __Email
+        {
+            get
+            {
+                return email;
+            }
+            set
+            {
+                email = value;
+            }
+        }
+
+        public string __MobileNumber
+        {
+            get
+            {
+                return mobileNumber;
+            }
+            set
+            {
+                mobileNumber = value;
+            }
+        }
+
+        public string __WalletAddress
+        {
+            get
+            {
+                return walletAddress;
+            }
+            set
+            {
+                walletAddress = value;
+            }
+        }
+
+        public string __TargetwalletAddress
+        {
+            get
+            {
+                return targetwalletAddress;
+            }
+            set
+            {
+                targetwalletAddress = value;
+            }
+        }
+
+        public int __State
+        {
+            get
+            {
+                return state;
+            }
+            set
+            {
+                state = value;
+            }
+        }
+
+        public int __CommitTime
+        {
+            get
+            {
+                return commitTime;
+            }
+            set
+            {
+                commitTime = value;
+            }
+        }
+
+        public int __CheckTime
+        {
+            get
+            {
+                return checkTime;
+            }
+            set
+            {
+                checkTime = value;
+            }
+        }
+
+        public string __Txid
+        {
+            get
+            {
+                return txid;
+            }
+            set
+            {
+                txid = value;
+            }
+        }
+
+        public string __SendValue
+        {
+            get
+            {
+                return sendValue;
+            }
+            set
+            {
+                sendValue = value;
             }
         }
     }

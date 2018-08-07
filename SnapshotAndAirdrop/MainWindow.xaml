@@ -8,8 +8,8 @@
         Title="MainWindow" Height="900" Width="1300" ResizeMode="NoResize">
     <Grid>
         <TabControl HorizontalAlignment="Left" Height="871" VerticalAlignment="Top" Width="1294">
-            <TabItem Header="Snapshot" FontSize="20" Margin="-2,-2,-310,-18">
-                <Grid Background="#FFE5E5E5" Margin="0,14,0,-6">
+            <TabItem Header="Snapshot" FontSize="20">
+                <Grid Background="#FFE5E5E5">
                     <Grid Margin="0,0,0,522">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="15*"/>
@@ -47,8 +47,8 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Airdrop" FontSize="20" Margin="310,0,-646,-18">
-                <Grid Background="#FFE5E5E5" Margin="0,14,0,0">
+            <TabItem Header="Airdrop" FontSize="20">
+                <Grid Background="#FFE5E5E5">
                     <Grid Margin="0,0,0,522">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="15*"/>
@@ -74,13 +74,13 @@
                         <Label Name="address" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2"/>
 
                         <Label Content="快照的库名" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                        <TextBox Name="snapshotColl2" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" Width="668" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,13,0,56" Grid.RowSpan="2"/>
+                        <TextBox Name="snapshotColl_airdrop" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" Width="668" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,13,0,56" Grid.RowSpan="2"/>
                         <Button Content="验证" Grid.Column="4" Grid.Row="2" Click="Verification" Margin="0,0,0,5" Height="49" VerticalAlignment="Bottom"/>
                         <Label Content="总数" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="5" Grid.Row="2"/>
                         <Label Name="total" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="6" Grid.Row="2"/>
 
                         <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投资产" Grid.Column="0" Grid.Row="3"/>
-                        <ComboBox Name="assetId2" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="3" SelectionChanged="AssetId2_SelectionChanged">
+                        <ComboBox Name="assetId_airdrop" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="3" SelectionChanged="AssetId2_SelectionChanged">
                         </ComboBox>
                         <Label Name="balance" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="3" Grid.Row="3" Margin="10,0,145,0"/>
                         <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投比例" Grid.Column="3" Grid.Row="3" Margin="199,0,0,0"/>
@@ -90,7 +90,48 @@
                     </Grid>
                     <Grid Margin="0,304,0,0">
                         <GroupBox Header="处理详情" Margin="0" Grid.ColumnSpan="1">
-                            <ListBox Name="details2"  Margin="0"/>
+                            <ListBox Name="details_airdrop"  Margin="0"/>
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="NnsAward" FontSize="20">
+                <Grid Background="#FFE5E5E5">
+                    <Grid Margin="0,0,0,522">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                            <RowDefinition Height="15*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="136*"/>
+                            <ColumnDefinition Width="0*"/>
+                            <ColumnDefinition Width="339*"/>
+                            <ColumnDefinition Width="339*"/>
+                            <ColumnDefinition Width="135*"/>
+                            <ColumnDefinition Width="89*"/>
+                            <ColumnDefinition Width="250*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="wif" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                        <PasswordBox Name="wif_award" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,12,10,58" Grid.RowSpan="2"/>
+                        <Button Content="确定"  Grid.Column="4" Grid.Row="0" Click="Button_Click_award" Height="50" VerticalAlignment="Top" Margin="0,10,0,0"/>
+
+                        <Label Content="address" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                        <Label Name="address_award" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="奖励的资产" Grid.Column="0" Grid.Row="2"/>
+                        <ComboBox Name="assetId_award" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="2" SelectionChanged="AssetId3_SelectionChanged">
+                        </ComboBox>
+                        <Label Name="balance_award" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="3" Grid.Row="3" Margin="10,0,145,0"/>
+                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="奖励的数额" Grid.Column="0" Grid.Row="3" RenderTransformOrigin="0.5,0.5"/>
+                        <TextBox Name="value_award" Grid.Column="1" Grid.Row="3" Height="50" Width="329" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,6" Grid.ColumnSpan="2"/>
+                        <Button Content="确定" Grid.Column="3" Grid.Row="4" Margin="10,0,5,0" Click="StartNnaAward"/>
+                    </Grid>
+                    <Grid Margin="0,304,0,0">
+                        <GroupBox Header="处理详情" Margin="0" Grid.ColumnSpan="1">
+                            <ListBox Name="details_award"  Margin="0"/>
                         </GroupBox>
                     </Grid>
                 </Grid>

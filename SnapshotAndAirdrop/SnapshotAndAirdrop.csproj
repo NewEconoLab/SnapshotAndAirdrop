@@ -122,6 +122,7 @@
     </ApplicationDefinition>
     <Compile Include="Handle\Airdrop.cs" />
     <Compile Include="Handle\ITask.cs" />
+    <Compile Include="Handle\NnsAward.cs" />
     <Compile Include="Handle\Snapshot.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
