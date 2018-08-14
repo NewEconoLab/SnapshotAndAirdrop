@@ -19,17 +19,18 @@ namespace SnapshotAndAirdrop.Handle
             //分析参数
             byte[] priKey = (byte[])args[0];
             string assetid = (string)args[1]; //空投出去的钱id
-            decimal ratio = decimal.Parse((string)args[2]);
-            string snapshopColl = (string)args[3];
+            decimal totalValue = (decimal)args[2];
+            decimal ratio = decimal.Parse((string)args[3]);
+            string snapshotColl = (string)args[4];
 
 
             //获取已有的所有的地址 （分段）
-            var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl);
+            var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl);
             var looptime = count / 1000 + 1;
             for (var i = 1; i < looptime + 1; i++)
             {
                 Console.WriteLine("总共要循环：" + count + "~~现在循环到：" + i);
-                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, "{}", 1000, i);
+                MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 1000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
                     Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].ToString());
@@ -37,16 +38,19 @@ namespace SnapshotAndAirdrop.Handle
                         continue;
                     var addr = snapshot.__Addr;
                     var balance = decimal.Parse(snapshot.__Balance.ToString());
-                    Send(priKey, assetid,addr, balance,ratio, snapshopColl);
+                    Send(priKey, assetid,addr, balance,ratio, snapshotColl);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
             }
             deleResult("完成");
 
+            var snapshotCollTotal = "TotalSnapShot";
+
+            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", "{snapshotColl:\"" + snapshotColl + "\"total:\""+totalValue+"\"assetid:\""+assetid+"\"}");
         }
 
 
-        private void Send(byte[] priKey,string assetid,string addr, decimal balance, decimal ratio,string snapshopColl)
+        private void Send(byte[] priKey,string assetid,string addr, decimal balance, decimal ratio,string snapshotColl)
         {
             try
             {
@@ -131,7 +135,7 @@ namespace SnapshotAndAirdrop.Handle
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
                         string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict());
-                        mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFilter, str);
+                        mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, whereFilter, str);
                     }
                     else
                     {

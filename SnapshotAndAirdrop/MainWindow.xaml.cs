@@ -232,7 +232,12 @@ namespace SnapshotAndAirdrop
                 airdropTask.deleRuntime = null;
                 airdropTask.deleRuntime += RuntimeCallBack_Airdrop;
                 airdropTask.deleResult += ResultCallBack_Airdrop;
-                airdropTask.StartTask(priKey, assetid, ratio, snapshotColl);
+                airdropTask.StartTask(priKey, assetid, value, ratio, snapshotColl);
+            }
+            else
+            {
+                _lock = false;
+
             }
 
         }
