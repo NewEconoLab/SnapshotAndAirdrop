@@ -45,8 +45,12 @@ namespace SnapshotAndAirdrop.Handle
             deleResult("完成");
 
             var snapshotCollTotal = "TotalSnapShot";
-
-            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", "{snapshotColl:\"" + snapshotColl + "\"total:\""+totalValue+"\"assetid:\""+assetid+"\"}");
+            TotalSnapshot totalSnapshot = new TotalSnapshot();
+            totalSnapshot.__Assetid = assetid;
+            totalSnapshot.__TotalValue = (decimal)0.11123456789;
+            totalSnapshot.__SnapshotColl = snapshotColl;
+            string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(totalSnapshot)).AsDict());
+            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", str);
         }
 
 

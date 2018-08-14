@@ -521,4 +521,47 @@ namespace SnapshotAndAirdrop
             }
         }
     }
+
+
+    public struct TotalSnapshot
+    {
+        public string snapshotColl;
+        public string assetid;
+        public decimal totalValue;
+
+        public string __SnapshotColl
+        {
+            get
+            {
+                return snapshotColl;
+            }
+            set
+            {
+                snapshotColl = value;
+            }
+        }
+
+        public string __Assetid
+        {
+            get
+            {
+                return assetid;
+            }
+            set
+            {
+                assetid = value;
+            }
+        }
+        public decimal __TotalValue
+        {
+            get
+            {
+                return totalValue;
+            }
+            set
+            {
+                totalValue = value;
+            }
+        }
+    }
 }
