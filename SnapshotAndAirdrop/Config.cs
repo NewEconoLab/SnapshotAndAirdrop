@@ -527,7 +527,7 @@ namespace SnapshotAndAirdrop
     {
         public string snapshotColl;
         public string assetid;
-        public decimal totalValue;
+        public string totalValue;
 
         public string __SnapshotColl
         {
@@ -552,7 +552,7 @@ namespace SnapshotAndAirdrop
                 assetid = value;
             }
         }
-        public decimal __TotalValue
+        public string __TotalValue
         {
             get
             {

@@ -47,7 +47,7 @@ namespace SnapshotAndAirdrop.Handle
             var snapshotCollTotal = "TotalSnapShot";
             TotalSnapshot totalSnapshot = new TotalSnapshot();
             totalSnapshot.__Assetid = assetid;
-            totalSnapshot.__TotalValue = (decimal)0.11123456789;
+            totalSnapshot.__TotalValue = totalValue.ToString();
             totalSnapshot.__SnapshotColl = snapshotColl;
             string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(totalSnapshot)).AsDict());
             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", str);

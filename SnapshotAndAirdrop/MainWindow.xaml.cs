@@ -288,8 +288,8 @@ namespace SnapshotAndAirdrop
                     if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
                     {
                         Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].AsDict().ToString());
-                        balance += decimal.Parse(snapshot.balance);
-                        Console.WriteLine(snapshot.addr + "   " + decimal.Parse(snapshot.balance) + "    " + balance);
+                        balance +=decimal.Parse(snapshot.balance);
+                        Console.WriteLine(snapshot.addr + "   " + snapshot.balance+ "    " + balance);
                     }
                 }
             }
