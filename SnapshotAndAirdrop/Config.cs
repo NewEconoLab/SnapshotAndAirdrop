@@ -249,6 +249,7 @@ namespace SnapshotAndAirdrop
         public string send;
         public string txid;
         public string sendAssetId;
+        public UInt32 height;
 
 
         public string __Addr
@@ -295,7 +296,6 @@ namespace SnapshotAndAirdrop
                 send = value;
             }
         }
-
         public string __SendAssetId
         {
             get
@@ -305,6 +305,17 @@ namespace SnapshotAndAirdrop
             set
             {
                 sendAssetId = value;
+            }
+        }
+        public UInt32 __Height
+        {
+            get
+            {
+                return height;
+            }
+            set
+            {
+                height = value;
             }
         }
     }
@@ -528,6 +539,7 @@ namespace SnapshotAndAirdrop
         public string snapshotColl;
         public string assetid;
         public string totalValue;
+        public UInt32 height;
 
         public string __SnapshotColl
         {
@@ -540,7 +552,6 @@ namespace SnapshotAndAirdrop
                 snapshotColl = value;
             }
         }
-
         public string __Assetid
         {
             get
@@ -561,6 +572,17 @@ namespace SnapshotAndAirdrop
             set
             {
                 totalValue = value;
+            }
+        }
+        public UInt32 __Height
+        {
+            get
+            {
+                return height;
+            }
+            set
+            {
+                height = value;
             }
         }
     }

@@ -16,7 +16,7 @@ namespace SnapshotAndAirdrop.Handle
         {
             //分析参数
             string assetid = (string)args[0];
-            decimal height = decimal.Parse((string)args[1]);
+            UInt32 height = UInt32.Parse((string)args[1]);
             string snapshopColl = (string)args[2];
             //获取已有地址个数 分段处理
             var count = mongoHelper.GetDataCount(Config.Ins.Address_Conn, Config.Ins.Address_DB, Config.Ins.Address_Coll);
@@ -46,6 +46,7 @@ namespace SnapshotAndAirdrop.Handle
                         Snapshot snapshot = new Snapshot();
                         snapshot.__Addr = address;
                         snapshot.__Balance = value.ToString();
+                        snapshot.__Height = height;
                         findFliter = JsonConvert.SerializeObject(new Snapshot() {__Addr = address });
                         findFliter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFliter).AsDict());
                         mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, findFliter, ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict()));
@@ -62,7 +63,7 @@ namespace SnapshotAndAirdrop.Handle
         {
             //分析参数
             string assetid = (string)args[0];
-            decimal height = decimal.Parse((string)args[1]);
+            UInt32 height = UInt32.Parse((string)args[1]);
             string snapshopColl = (string)args[2];
 
             //获取这个资产的所有的nep5交易来进行资产的分析
@@ -111,7 +112,7 @@ namespace SnapshotAndAirdrop.Handle
                             }
 
                             string whereFliter = findFliter;
-                            findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from, __Balance = balance.ToString()});
+                            findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = from, __Balance = balance.ToString(),__Height = height});
                             findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter);
                         }
@@ -132,7 +133,7 @@ namespace SnapshotAndAirdrop.Handle
                                 balance = balance + value;
                             }
                             string whereFliter = findFliter;
-                            findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to, __Balance = balance.ToString() });
+                            findFliter = JsonConvert.SerializeObject(new Snapshot() { __Addr = to, __Balance = balance.ToString() ,__Height = height});
                             findFliter = ToolHelper.RemoveRedundantParams(MyJson.Parse(findFliter).AsDict());
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter);
                         }

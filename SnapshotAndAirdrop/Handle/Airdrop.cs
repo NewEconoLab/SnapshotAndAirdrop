@@ -44,11 +44,24 @@ namespace SnapshotAndAirdrop.Handle
             }
             deleResult("完成");
 
+
+            //获取高度
+            UInt32 height = 0;
+            {
+                MyJson.JsonNode_Array info = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 1, 1);
+                Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(info[0].ToString());
+                height = snapshot.__Height;
+            }
+
+
+
             var snapshotCollTotal = "TotalSnapShot";
             TotalSnapshot totalSnapshot = new TotalSnapshot();
             totalSnapshot.__Assetid = assetid;
             totalSnapshot.__TotalValue = totalValue.ToString();
             totalSnapshot.__SnapshotColl = snapshotColl;
+            totalSnapshot.__Height = height;
+
             string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(totalSnapshot)).AsDict());
             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", str);
         }
