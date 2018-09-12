@@ -23,7 +23,7 @@ namespace SnapshotAndAirdrop.Handle
             decimal ratio = decimal.Parse((string)args[3]);
             string snapshotColl = (string)args[4];
 
-
+            UInt32 height = 0;
             //获取已有的所有的地址 （分段）
             var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl);
             var looptime = count / 1000 + 1;
@@ -37,23 +37,13 @@ namespace SnapshotAndAirdrop.Handle
                     if (!string.IsNullOrEmpty(snapshot.__Txid))
                         continue;
                     var addr = snapshot.__Addr;
+                    height = snapshot.height;
                     var balance = decimal.Parse(snapshot.__Balance.ToString());
-                    Send(priKey, assetid,addr, balance,ratio, snapshotColl);
+                    Send(priKey, assetid,addr, balance,ratio, height, snapshotColl);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
             }
             deleResult("完成");
-
-
-            //获取高度
-            UInt32 height = 0;
-            {
-                MyJson.JsonNode_Array info = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 1, 1);
-                Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(info[0].ToString());
-                height = snapshot.__Height;
-            }
-
-
 
             var snapshotCollTotal = "TotalSnapShot";
             TotalSnapshot totalSnapshot = new TotalSnapshot();
@@ -67,7 +57,7 @@ namespace SnapshotAndAirdrop.Handle
         }
 
 
-        private void Send(byte[] priKey,string assetid,string addr, decimal balance, decimal ratio,string snapshotColl)
+        private void Send(byte[] priKey,string assetid,string addr, decimal balance, decimal ratio,UInt32 height,string snapshotColl)
         {
             try
             {
@@ -149,6 +139,7 @@ namespace SnapshotAndAirdrop.Handle
                         snapshot.__Send = ((decimal)send/ decimals).ToString();
                         snapshot.__Txid = j_result["txid"].AsString();
                         snapshot.__SendAssetId = assetid;
+                        snapshot.__Height = height;
 
                         string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
                         string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict());
