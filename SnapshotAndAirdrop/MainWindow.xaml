@@ -49,8 +49,9 @@
             </TabItem>
             <TabItem Header="Airdrop" FontSize="20">
                 <Grid Background="#FFE5E5E5">
-                    <Grid Margin="0,0,0,522">
+                    <Grid Margin="0,0,0,470">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="15*"/>
                             <RowDefinition Height="15*"/>
                             <RowDefinition Height="15*"/>
                             <RowDefinition Height="15*"/>
@@ -74,21 +75,30 @@
                         <Label Name="address" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2"/>
 
                         <Label Content="快照的库名" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                        <TextBox Name="snapshotColl_airdrop" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" Width="668" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,13,0,56" Grid.RowSpan="2"/>
+                        <TextBox Name="snapshotColl_airdrop" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Left" Width="668" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"/>
                         <Button Content="验证" Grid.Column="4" Grid.Row="2" Click="Verification" Margin="0,0,0,5" Height="49" VerticalAlignment="Bottom"/>
                         <Label Content="总数" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="5" Grid.Row="2"/>
                         <Label Name="total" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="6" Grid.Row="2"/>
-
-                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投资产" Grid.Column="0" Grid.Row="3"/>
-                        <ComboBox Name="assetId_airdrop" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="3" SelectionChanged="AssetId2_SelectionChanged">
+                        <Label MaxWidth="550" Grid.Column="0" Grid.Row="3">
+                            <TextBlock TextWrapping="Wrap"
+Text="获取某地址某高度的余额" />
+                        </Label>
+                        <ComboBox Name="assetId_airdrop2" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="3" SelectionChanged="AssetId4_SelectionChanged">
                         </ComboBox>
-                        <Label Name="balance" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="3" Grid.Row="3" Margin="10,0,145,0"/>
-                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投比例" Grid.Column="3" Grid.Row="3" Margin="199,0,0,0"/>
-                        <TextBox Name="ratio" Grid.Column="4" Grid.Row="3" Height="50" Width="125" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,5"/>
-                        <TextBlock Text="例如快照neo是5个，空投比例是0.1就是空投0.5个nnc，比例是10就是空投50个" Grid.Column="5" Grid.Row="3" Grid.ColumnSpan="2" Margin="10,5,0,10" Grid.RowSpan="2" TextWrapping="Wrap"/>
-                        <Button Content="确定" Grid.Column="3" Grid.Row="4" Margin="10,0,5,0" Click="StartAirdrop"/>
+                        <TextBox Text="填入地址" Name="snapshot_address" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Width="339" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,10"/>
+                        <TextBox Text="填入高度" Name="snapshot_height" Grid.Column="4" Grid.Row="3" HorizontalAlignment="Left" Width="120" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="10,10,0,10"/>
+                        <Button Content="确定" Grid.Column="5" Grid.Row="3" Margin="10,0,5,0" Click="GetBalanceOf"/>
+                        <Label Name="balanceof" Content="余额:" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.Column="6" Grid.Row="3"/>
+                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投资产" Grid.Column="0" Grid.Row="4"/>
+                        <ComboBox Name="assetId_airdrop" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Width="329" Height="45" Grid.Column="2" Grid.Row="4" SelectionChanged="AssetId2_SelectionChanged">
+                        </ComboBox>
+                        <Label Name="balance" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" Grid.Column="3" Grid.Row="4" Margin="10,0,145,0"/>
+                        <Label HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="空投比例" Grid.Column="3" Grid.Row="4" Margin="199,0,0,0"/>
+                        <TextBox Name="ratio" Grid.Column="4" Grid.Row="4" Height="50" Width="125" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="0,5"/>
+                        <TextBlock Text="例如快照neo是5个，空投比例是0.1就是空投0.5个nnc，比例是10就是空投50个" Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="2" Margin="10,5,0,10" Grid.RowSpan="2" TextWrapping="Wrap"/>
+                        <Button Content="确定" Grid.Column="3" Grid.Row="5" Margin="10,0,5,0" Click="StartAirdrop"/>
                     </Grid>
-                    <Grid Margin="0,304,0,0">
+                    <Grid Margin="0,350,0,0">
                         <GroupBox Header="处理详情" Margin="0" Grid.ColumnSpan="1">
                             <ListBox Name="details_airdrop"  Margin="0"/>
                         </GroupBox>

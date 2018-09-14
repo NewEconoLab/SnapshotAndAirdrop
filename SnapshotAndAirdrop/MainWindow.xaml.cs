@@ -35,6 +35,7 @@ namespace SnapshotAndAirdrop
         {
             this.assetType.SelectedIndex = 0;
             this.assetId_airdrop.Items.Clear();
+            this.assetId_airdrop2.Items.Clear();
 
             foreach (string key in Config.Ins.nep5s.Keys)
             {
@@ -44,7 +45,11 @@ namespace SnapshotAndAirdrop
                 ComboBoxItem comboBoxItem2 = new ComboBoxItem();
                 comboBoxItem2.Content = key;
                 this.assetId_award.Items.Add(comboBoxItem2);
+                ComboBoxItem comboBoxItem3 = new ComboBoxItem();
+                comboBoxItem3.Content = key;
+                this.assetId_airdrop2.Items.Add(comboBoxItem3);
             }
+
             this.assetId.SelectedIndex = 0;
         }
 
@@ -407,6 +412,50 @@ namespace SnapshotAndAirdrop
                 MessageBox.Show("请先输入地址");
                 return;
             }
+        }
+
+        private void AssetId4_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void GetBalanceOf(object sender, RoutedEventArgs e)
+        {
+            var asset = Config.Ins.nep5s[(this.assetId_airdrop2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+            var height = 0;
+            int.TryParse(this.snapshot_height.Text,out height);
+            var address = this.snapshot_address.Text;
+            if (string.IsNullOrEmpty(asset) || height == 0 || string.IsNullOrEmpty(address))
+            {
+                MessageBox.Show("请填入正确的参数");
+                return;
+            }
+            var balance = decimal.Zero;
+            var findFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Asset = asset , __From = address});
+            findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
+            MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, findFilter);
+            for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
+            {
+                var str = Ja_Nep5transferInfo[i].ToString();
+                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                if (blockindex <= height)
+                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value);
+
+            }
+
+            findFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Asset = asset, __To = address });
+            findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
+            Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, findFilter);
+            for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
+            {
+                var str = Ja_Nep5transferInfo[i].ToString();
+                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                if (blockindex <= height)
+                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value);
+
+            }
+
+            this.balanceof.Content = "余额：" + balance;
         }
     }
 }
