@@ -20,14 +20,14 @@ namespace SnapshotAndAirdrop.Helper
         }
 
         //存入某个数据
-        public static void InsetOne(string mongodbConnStr, string mongodbDatabase, string collName, string value)
+        public static void InsetOne<T>(string mongodbConnStr, string mongodbDatabase, string collName, T value)
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
-            var collection = database.GetCollection<BsonDocument>(collName);
+            var collection = database.GetCollection<T>(collName);
             try
             {
-                collection.InsertOne(BsonDocument.Parse(value));
+                collection.InsertOne(value);
             }
             catch (Exception e)
             {
@@ -63,7 +63,7 @@ namespace SnapshotAndAirdrop.Helper
             }
         }
 
-        public static void ReplaceData(string mongodbConnStr, string mongodbDatabase, string collName, string whereFliter, string replaceFliter)
+        public static void ReplaceData<T>(string mongodbConnStr, string mongodbDatabase, string collName, string whereFliter, T replaceFliter)
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
@@ -78,7 +78,8 @@ namespace SnapshotAndAirdrop.Helper
                 }
                 else
                 {
-                    collection.ReplaceOne(BsonDocument.Parse(whereFliter), BsonDocument.Parse(replaceFliter));
+                    collection.DeleteOne(whereFliter);
+                    InsetOne(mongodbConnStr, mongodbDatabase, collName, replaceFliter);
                     client = null;
                 }
             }
@@ -123,13 +124,12 @@ namespace SnapshotAndAirdrop.Helper
             client = null;
         }
 
-        public static long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter = "{}")
+        public static long GetDataCount(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter ="{}")
         {
             var client = new MongoClient(mongodbConnStr);
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
-
-            var txCount = collection.CountDocuments(BsonDocument.Parse(findFliter));
+            var txCount = collection.CountDocuments(findFliter);
             client = null;
 
             return txCount;
@@ -166,7 +166,7 @@ namespace SnapshotAndAirdrop.Helper
             var database = client.GetDatabase(mongodbDatabase);
             var collection = database.GetCollection<BsonDocument>(coll);
 
-            List<BsonDocument> query = collection.Find(BsonDocument.Parse(findBson)).Sort(sortStr).Skip(pageCount * (pageNum - 1)).Limit(pageCount).ToList();
+            List<BsonDocument> query = collection.Find(findBson).Sort(sortStr).Skip(pageCount * (pageNum - 1)).Limit(pageCount).ToList();
             client = null;
 
             if (query.Count > 0)

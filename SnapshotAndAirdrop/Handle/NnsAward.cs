@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson;
+using Newtonsoft.Json;
 using SnapshotAndAirdrop.Helper;
 using System;
 using System.Collections.Generic;
@@ -31,18 +32,17 @@ namespace SnapshotAndAirdrop.Handle
                 for (var ii = 0; ii < Ja_AwardInfo.Count; ii++)
                 {
                     NnsAward nnsAward = JsonConvert.DeserializeObject<NnsAward>(Ja_AwardInfo[ii].ToString());
-                    if (!string.IsNullOrEmpty(nnsAward.__Txid))
+                    if (!string.IsNullOrEmpty(nnsAward.txid))
                         continue;
                     if (nnsAward.state != 1)
                         continue;
-                    var targetwalletAddress = nnsAward.__TargetwalletAddress;
+                    var targetwalletAddress = nnsAward.targetwalletAddress;
                     Send(priKey, assetid, targetwalletAddress, value, nnsAward);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
             }
             deleResult("完成");
         }
-
 
         private void Send(byte[] priKey, string assetid, string addr, decimal value,NnsAward nnsAward)
         {
@@ -120,12 +120,10 @@ namespace SnapshotAndAirdrop.Handle
                     var j_result = MyJson.Parse(result).AsDict()["result"].AsList()[0].AsDict();
                     if (j_result["sendrawtransactionresult"].AsBool())
                     {
-                        nnsAward.__Txid = j_result["txid"].AsString();
-                        nnsAward.__SendValue = value.ToString();
+                        nnsAward.txid = j_result["txid"].AsString();
+                        nnsAward.sendValue = BsonDecimal128.Create(value);
 
-                        string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new NnsAward() { __TargetwalletAddress = addr })).AsDict());
-                        string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(nnsAward)).AsDict());
-                        mongoHelper.ReplaceData(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll, whereFilter, str);
+                        mongoHelper.ReplaceData(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NnsAward() { targetwalletAddress = addr })) ,nnsAward);
                     }
                     else
                     {

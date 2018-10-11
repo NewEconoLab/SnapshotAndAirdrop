@@ -10,8 +10,9 @@ namespace SnapshotAndAirdrop.Helper
 {
     class ToolHelper
     {
-        public static string RemoveUndefinedParams(MyJson.JsonNode_Object jo)
+        public static string RemoveUndefinedParams(string str)
         {
+            MyJson.JsonNode_Object jo = MyJson.Parse(str).AsDict();
             string[] keys = new string[jo.Keys.Count];
             jo.Keys.CopyTo(keys, 0);
 

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SnapshotAndAirdrop.Helper;
 using System;
@@ -33,12 +34,11 @@ namespace SnapshotAndAirdrop.Handle
                 MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 1000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
-                    Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].ToString());
-                    if (!string.IsNullOrEmpty(snapshot.__Txid))
+                    if (string.IsNullOrEmpty(Ja_addressInfo[ii].AsDict()["txid"].ToString()))
                         continue;
-                    var addr = snapshot.__Addr;
-                    height = snapshot.height;
-                    var balance = decimal.Parse(snapshot.__Balance.ToString());
+                    var addr = Ja_addressInfo[ii].AsDict()["addr"].ToString();
+                    height = (uint)Ja_addressInfo[ii].AsDict()["height"].AsInt();
+                    var balance = decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString());
                     Send(priKey, assetid,addr, balance,ratio, height, snapshotColl);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
@@ -47,13 +47,12 @@ namespace SnapshotAndAirdrop.Handle
 
             var snapshotCollTotal = "TotalSnapShot";
             TotalSnapshot totalSnapshot = new TotalSnapshot();
-            totalSnapshot.__Assetid = assetid;
-            totalSnapshot.__TotalValue = totalValue.ToString();
-            totalSnapshot.__SnapshotColl = snapshotColl;
-            totalSnapshot.__Height = height;
+            totalSnapshot.assetid = assetid;
+            totalSnapshot.totalValue = BsonDecimal128.Create(totalValue);
+            totalSnapshot.snapshotColl = snapshotColl;
+            totalSnapshot.height = height;
 
-            string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(totalSnapshot)).AsDict());
-            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal, "{\"snapshotColl\":\""+ snapshotColl + "\"}", str);
+            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotCollTotal,"{\"snapshotColl\":\""+ snapshotColl + "\"}",totalSnapshot);
         }
 
 
@@ -134,16 +133,14 @@ namespace SnapshotAndAirdrop.Handle
                     if (j_result["sendrawtransactionresult"].AsBool())
                     {
                         Snapshot snapshot = new Snapshot();
-                        snapshot.__Addr = addr;
-                        snapshot.__Balance = balance.ToString();
-                        snapshot.__Send = ((decimal)send/ decimals).ToString();
-                        snapshot.__Txid = j_result["txid"].AsString();
-                        snapshot.__SendAssetId = assetid;
-                        snapshot.__Height = height;
+                        snapshot.addr = addr;
+                        snapshot.balance = BsonDecimal128.Create(balance);
+                        snapshot.send = BsonDecimal128.Create(((decimal)send/ decimals));
+                        snapshot.txid = j_result["txid"].AsString();
+                        snapshot.sendAssetId = assetid;
+                        snapshot.height = height;
 
-                        string whereFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(JsonConvert.SerializeObject(new Snapshot() { __Addr=addr})).AsDict());
-                        string str = ToolHelper.RemoveRedundantParams(MyJson.Parse(JsonConvert.SerializeObject(snapshot)).AsDict());
-                        mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, whereFilter, str);
+                        mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new Snapshot() { addr = addr })), snapshot);
                     }
                     else
                     {

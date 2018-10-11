@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Numerics;
 using SnapshotAndAirdrop.Handle;
 using SnapshotAndAirdrop.Helper;
+using MongoDB.Bson;
 
 namespace SnapshotAndAirdrop
 {
@@ -292,9 +293,7 @@ namespace SnapshotAndAirdrop
                 {
                     if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
                     {
-                        Snapshot snapshot = JsonConvert.DeserializeObject<Snapshot>(Ja_addressInfo[ii].AsDict().ToString());
-                        balance +=decimal.Parse(snapshot.balance);
-                        Console.WriteLine(snapshot.addr + "   " + snapshot.balance+ "    " + balance);
+                        balance += decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString()); ;
                     }
                 }
             }
@@ -431,27 +430,23 @@ namespace SnapshotAndAirdrop
                 return;
             }
             var balance = decimal.Zero;
-            var findFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Asset = asset , __From = address});
-            findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
-            MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, findFilter);
+            MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, from = address })));
             for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
             {
                 var str = Ja_Nep5transferInfo[i].ToString();
-                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
                 if (blockindex <= height)
-                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value);
+                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value);
 
             }
 
-            findFilter = JsonConvert.SerializeObject(new NEP5Transfer() { __Asset = asset, __To = address });
-            findFilter = ToolHelper.RemoveUndefinedParams(MyJson.Parse(findFilter).AsDict());
-            Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, findFilter);
+            Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, to = address })));
             for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
             {
                 var str = Ja_Nep5transferInfo[i].ToString();
-                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).__Blockindex;
+                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
                 if (blockindex <= height)
-                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).__Value);
+                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value);
 
             }
 

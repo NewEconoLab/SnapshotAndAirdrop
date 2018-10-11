@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace SnapshotAndAirdrop
 {
@@ -87,19 +89,6 @@ namespace SnapshotAndAirdrop
     {
         //根据实际情况修改字段名称  例如在数据库中address对应的key是addres 就将下面的addr替换成address
         public string addr;
-
-        public string __Addr
-        {
-            get
-            {
-                return addr;
-            }
-            set
-            {
-                addr = value;
-            }
-        }
-
     }
 
     //Utxo参数格式
@@ -108,68 +97,10 @@ namespace SnapshotAndAirdrop
         //根据实际情况修改字段名称
         public string addr;
         public string asset;
-        public string value;
+        public BsonDecimal128 value;
         public Int32 createHeight;
         public Int32 useHeight;
-
-
-        public string __Addr
-        {
-            get
-            {
-                return addr;
-            }
-            set
-            {
-                addr = value;
-            }
-        }
-        public string __Asset
-        {
-            get
-            {
-                return asset;
-            }
-            set
-            {
-                asset = value;
-            }
-        }
-        public string __Value
-        {
-            get
-            {
-                return value;
-            }
-            set
-            {
-                this.value = value;
-            }
-        }
-        public Int32 __CreateHeight
-        {
-            get
-            {
-                return createHeight;
-            }
-            set
-            {
-                createHeight = value;
-            }
-        }
-        public Int32 __UseHeight
-        {
-            get
-            {
-                return useHeight;
-            }
-            set
-            {
-                useHeight = value;
-            }
-        }
     }
-
     //Nep5Transfer
     public struct NEP5Transfer
     {
@@ -178,146 +109,16 @@ namespace SnapshotAndAirdrop
         public string from;
         public string to;
         public string value;
-
-
-        public Int32 __Blockindex
-        {
-            get
-            {
-                return blockindex;
-            }
-            set
-            {
-                blockindex = value;
-            }
-        }
-
-        public string __Asset
-{
-            get
-            {
-                return asset;
-            }
-            set
-            {
-                asset = value;
-            }
-        }
-
-        public string __From
-        {
-            get
-            {
-                return from;
-            }
-            set
-            {
-                from = value;
-            }
-        }
-
-        public string __To
-        {
-            get
-            {
-                return to;
-            }
-            set
-            {
-                to = value;
-            }
-        }
-        
-        public string __Value
-        {
-            get
-            {
-                return value;
-            }
-            set
-            {
-                this.value = value;
-            }
-        }
     }
-
     //快照
     public struct Snapshot
     {
         public string addr;
-        public string balance;
-        public string send;
+        public BsonDecimal128 balance;
+        public BsonDecimal128 send;
         public string txid;
         public string sendAssetId;
         public UInt32 height;
-
-
-        public string __Addr
-        {
-            get
-            {
-                return addr;
-            }
-            set
-            {
-                addr = value;
-            }
-        }
-        public string __Txid
-        {
-            get
-            {
-                return txid;
-            }
-            set
-            {
-                txid = value;
-            }
-        }
-        public string __Balance
-        {
-            get
-            {
-                return balance;
-            }
-            set
-            {
-                balance = value;
-            }
-        }
-        public string __Send
-        {
-            get
-            {
-                return send;
-            }
-            set
-            {
-                send = value;
-            }
-        }
-        public string __SendAssetId
-        {
-            get
-            {
-                return sendAssetId;
-            }
-            set
-            {
-                sendAssetId = value;
-            }
-        }
-        public UInt32 __Height
-        {
-            get
-            {
-                return height;
-            }
-            set
-            {
-                height = value;
-            }
-        }
     }
 
 
@@ -338,199 +139,7 @@ namespace SnapshotAndAirdrop
         public Int32 commitTime;
         public Int32 checkTime;
         public string txid;
-        public string sendValue;
-
-        public string __FirstName
-        {
-            get
-            {
-                return firstName;
-            }
-            set
-            {
-                firstName = value;
-            }
-        }
-
-        public string __LastName
-        {
-            get
-            {
-                return lastName;
-            }
-            set
-            {
-                lastName = value;
-            }
-        }
-
-        public string __Country
-        {
-            get
-            {
-                return country;
-            }
-            set
-            {
-                country = value;
-            }
-        }
-
-        public string __Str_type
-        {
-            get
-            {
-                return str_type;
-            }
-            set
-            {
-                str_type = value;
-            }
-        }
-
-        public string __IdNumber
-        {
-            get
-            {
-                return idNumber;
-            }
-            set
-            {
-                idNumber = value;
-            }
-        }
-
-        public string __PassportNumber
-        {
-            get
-            {
-                return passportNumber;
-            }
-            set
-            {
-                passportNumber = value;
-            }
-        }
-
-        public string __PassportPicture
-        {
-            get
-            {
-                return passportPicture;
-            }
-            set
-            {
-                passportPicture = value;
-            }
-        }
-
-        public string __Email
-        {
-            get
-            {
-                return email;
-            }
-            set
-            {
-                email = value;
-            }
-        }
-
-        public string __MobileNumber
-        {
-            get
-            {
-                return mobileNumber;
-            }
-            set
-            {
-                mobileNumber = value;
-            }
-        }
-
-        public string __WalletAddress
-        {
-            get
-            {
-                return walletAddress;
-            }
-            set
-            {
-                walletAddress = value;
-            }
-        }
-
-        public string __TargetwalletAddress
-        {
-            get
-            {
-                return targetwalletAddress;
-            }
-            set
-            {
-                targetwalletAddress = value;
-            }
-        }
-
-        public int __State
-        {
-            get
-            {
-                return state;
-            }
-            set
-            {
-                state = value;
-            }
-        }
-
-        public int __CommitTime
-        {
-            get
-            {
-                return commitTime;
-            }
-            set
-            {
-                commitTime = value;
-            }
-        }
-
-        public int __CheckTime
-        {
-            get
-            {
-                return checkTime;
-            }
-            set
-            {
-                checkTime = value;
-            }
-        }
-
-        public string __Txid
-        {
-            get
-            {
-                return txid;
-            }
-            set
-            {
-                txid = value;
-            }
-        }
-
-        public string __SendValue
-        {
-            get
-            {
-                return sendValue;
-            }
-            set
-            {
-                sendValue = value;
-            }
-        }
+        public BsonDecimal128 sendValue;
     }
 
 
@@ -538,52 +147,7 @@ namespace SnapshotAndAirdrop
     {
         public string snapshotColl;
         public string assetid;
-        public string totalValue;
+        public BsonDecimal128 totalValue;
         public UInt32 height;
-
-        public string __SnapshotColl
-        {
-            get
-            {
-                return snapshotColl;
-            }
-            set
-            {
-                snapshotColl = value;
-            }
-        }
-        public string __Assetid
-        {
-            get
-            {
-                return assetid;
-            }
-            set
-            {
-                assetid = value;
-            }
-        }
-        public string __TotalValue
-        {
-            get
-            {
-                return totalValue;
-            }
-            set
-            {
-                totalValue = value;
-            }
-        }
-        public UInt32 __Height
-        {
-            get
-            {
-                return height;
-            }
-            set
-            {
-                height = value;
-            }
-        }
     }
 }
