@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Numerics;
 using MongoDB.Bson;
+using System.Globalization;
 
 namespace SnapshotAndAirdrop.Handle
 {
@@ -87,7 +88,7 @@ namespace SnapshotAndAirdrop.Handle
 
                         string from = JsonConvert.DeserializeObject<NEP5Transfer>(str).from;
                         string to = JsonConvert.DeserializeObject<NEP5Transfer>(str).to;
-                        decimal value =decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value);
+                        decimal value =decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value,NumberStyles.Float);
 
                         //更新from在snapshot中的value
                         if (!string.IsNullOrEmpty(from))
@@ -102,7 +103,7 @@ namespace SnapshotAndAirdrop.Handle
                             }
                             else
                             {
-                                balance =decimal.Parse(JA_SnapshotInfo[0].AsDict()["balance"].AsDict()["$numberDecimal"].ToString());
+                                balance =decimal.Parse(JA_SnapshotInfo[0].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(), NumberStyles.Float);
                                 balance = balance - value;
                             }
 
@@ -122,7 +123,7 @@ namespace SnapshotAndAirdrop.Handle
                             }
                             else
                             {
-                                balance = decimal.Parse(JA_SnapshotInfo[0].AsDict()["balance"].AsDict()["$numberDecimal"].ToString());
+                                balance = decimal.Parse(JA_SnapshotInfo[0].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(), NumberStyles.Float);
                                 balance = balance + value;
                             }
                             string whereFliter = findFliter;

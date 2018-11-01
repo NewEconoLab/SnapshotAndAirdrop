@@ -227,7 +227,7 @@ namespace SnapshotAndAirdrop
             Getbalance();
 
             //需要空头出去的钱
-            var value = decimal.Parse(ratio) * decimal.Parse(this.total.Content.ToString());
+            var value = decimal.Parse(ratio,System.Globalization.NumberStyles.Float) * decimal.Parse(this.total.Content.ToString(),System.Globalization.NumberStyles.Float);
 
             var mb = MessageBox.Show("需要空投：" + value + "  当前拥有：" + this.balance.Content.ToString(),"",MessageBoxButton.OKCancel);
             if (mb == MessageBoxResult.OK)
@@ -293,7 +293,7 @@ namespace SnapshotAndAirdrop
                 {
                     if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
                     {
-                        balance += decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString()); ;
+                        balance += decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(),System.Globalization.NumberStyles.Float); ;
                     }
                 }
             }
@@ -436,7 +436,7 @@ namespace SnapshotAndAirdrop
                 var str = Ja_Nep5transferInfo[i].ToString();
                 int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
                 if (blockindex <= height)
-                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value);
+                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value,System.Globalization.NumberStyles.Float);
 
             }
 
@@ -446,7 +446,7 @@ namespace SnapshotAndAirdrop
                 var str = Ja_Nep5transferInfo[i].ToString();
                 int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
                 if (blockindex <= height)
-                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value);
+                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value,System.Globalization.NumberStyles.Float);
 
             }
 

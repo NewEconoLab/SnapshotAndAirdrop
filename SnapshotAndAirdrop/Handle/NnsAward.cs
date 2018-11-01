@@ -18,10 +18,6 @@ namespace SnapshotAndAirdrop.Handle
         {
             byte[] priKey = (byte[])args[0];
             string assetid = (string)args[1]; //空投出去的钱id
-            decimal value =decimal.Parse((string)args[2]);
-
-            if (value <= 0)
-                return;
 
             //获取已有的所有的地址 （分段）
             var count = mongoHelper.GetDataCount(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll);
@@ -31,13 +27,16 @@ namespace SnapshotAndAirdrop.Handle
                 MyJson.JsonNode_Array Ja_AwardInfo = mongoHelper.GetDataPages(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll, "{}", 1000, i);
                 for (var ii = 0; ii < Ja_AwardInfo.Count; ii++)
                 {
-                    NnsAward nnsAward = JsonConvert.DeserializeObject<NnsAward>(Ja_AwardInfo[ii].ToString());
-                    if (!string.IsNullOrEmpty(nnsAward.txid))
+                    NnsAward nnsAward = new NnsAward();
+                    var address = Ja_AwardInfo[ii].AsDict()["maxBuyer"].AsString();
+                    var value =decimal.Parse(Ja_AwardInfo[ii].AsDict()["maxBonus"].AsDict()["$numberDecimal"].AsString());
+                    var txid = "";
+                    if (Ja_AwardInfo[ii].AsDict().ContainsKey("txid"))
+                        txid = Ja_AwardInfo[ii].AsDict()["txid"].AsString();
+                    if (!string.IsNullOrEmpty(txid))
                         continue;
-                    if (nnsAward.state != 1)
-                        continue;
-                    var targetwalletAddress = nnsAward.targetwalletAddress;
-                    Send(priKey, assetid, targetwalletAddress, value, nnsAward);
+                    Send(priKey, assetid, address, value, nnsAward);
+                    System.Threading.Thread.Sleep(1000);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
             }
@@ -74,7 +73,7 @@ namespace SnapshotAndAirdrop.Handle
                 //MakeTran
                 ThinNeo.Transaction tran = new Transaction();
                 {
-                    BigInteger sendValue = (BigInteger)(value* decimals);
+                    BigInteger sendValue = (BigInteger)((decimal)value* decimals);
                     using (ScriptBuilder sb = new ScriptBuilder())
                     {
                         MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();
@@ -121,9 +120,9 @@ namespace SnapshotAndAirdrop.Handle
                     if (j_result["sendrawtransactionresult"].AsBool())
                     {
                         nnsAward.txid = j_result["txid"].AsString();
-                        nnsAward.sendValue = BsonDecimal128.Create(value);
-
-                        mongoHelper.ReplaceData(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NnsAward() { targetwalletAddress = addr })) ,nnsAward);
+                        nnsAward.maxBuyer = addr;
+                        nnsAward.maxBonus =Decimal128.Parse(value.ToString());
+                        mongoHelper.ReplaceData(Config.Ins.Applyfornnc_Conn, Config.Ins.Applyfornnc_DB, Config.Ins.Applyfornnc_Coll,"{maxBuyer:\""+ addr + "\"}" ,nnsAward);
                     }
                     else
                     {

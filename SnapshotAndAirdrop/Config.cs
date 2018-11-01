@@ -124,22 +124,9 @@ namespace SnapshotAndAirdrop
 
     public struct NnsAward
     {
-        public string firstName;
-        public string lastName;
-        public string country;
-        public string str_type;
-        public string idNumber;
-        public string passportNumber;
-        public string passportPicture;
-        public string email;
-        public string mobileNumber;
-        public string walletAddress;
-        public string targetwalletAddress;
-        public Int32 state;
-        public Int32 commitTime;
-        public Int32 checkTime;
+        public string maxBuyer;
+        public BsonDecimal128 maxBonus;
         public string txid;
-        public BsonDecimal128 sendValue;
     }
 
 

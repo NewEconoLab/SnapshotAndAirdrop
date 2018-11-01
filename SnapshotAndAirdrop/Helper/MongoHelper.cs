@@ -78,8 +78,8 @@ namespace SnapshotAndAirdrop.Helper
                 }
                 else
                 {
-                    collection.DeleteOne(whereFliter);
-                    InsetOne(mongodbConnStr, mongodbDatabase, collName, replaceFliter);
+                    var collection2 = database.GetCollection<T>(collName);
+                    collection2.ReplaceOne(whereFliter, replaceFliter);
                     client = null;
                 }
             }

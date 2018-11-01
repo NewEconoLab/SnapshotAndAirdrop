@@ -21,7 +21,7 @@ namespace SnapshotAndAirdrop.Handle
             byte[] priKey = (byte[])args[0];
             string assetid = (string)args[1]; //空投出去的钱id
             decimal totalValue = (decimal)args[2];
-            decimal ratio = decimal.Parse((string)args[3]);
+            decimal ratio = decimal.Parse((string)args[3],System.Globalization.NumberStyles.Float);
             string snapshotColl = (string)args[4];
 
             UInt32 height = 0;
@@ -34,14 +34,17 @@ namespace SnapshotAndAirdrop.Handle
                 MyJson.JsonNode_Array Ja_addressInfo = mongoHelper.GetDataPages(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, "{}", 1000, i);
                 for (var ii = 0; ii < Ja_addressInfo.Count; ii++)
                 {
-                    if (string.IsNullOrEmpty(Ja_addressInfo[ii].AsDict()["txid"].ToString()))
+                    string txid = Ja_addressInfo[ii].AsDict()["txid"].ToString();
+                    if (!string.IsNullOrEmpty(txid) || txid == "null")
                         continue;
                     var addr = Ja_addressInfo[ii].AsDict()["addr"].ToString();
                     height = (uint)Ja_addressInfo[ii].AsDict()["height"].AsInt();
-                    var balance = decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString());
+                    var balance = decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(),System.Globalization.NumberStyles.Float);
                     Send(priKey, assetid,addr, balance,ratio, height, snapshotColl);
+                    System.Threading.Thread.Sleep(100);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
+                System.Threading.Thread.Sleep(10000);
             }
             deleResult("完成");
 
@@ -128,7 +131,6 @@ namespace SnapshotAndAirdrop.Handle
 
                     url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
                     result = HttpHelper.HttpPost(url, postdata);
-                    Console.WriteLine(result);
                     var j_result = MyJson.Parse(result).AsDict()["result"].AsList()[0].AsDict();
                     if (j_result["sendrawtransactionresult"].AsBool())
                     {
