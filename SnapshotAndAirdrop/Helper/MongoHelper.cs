@@ -1,8 +1,10 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SnapshotAndAirdrop.Helper
@@ -113,8 +115,6 @@ namespace SnapshotAndAirdrop.Helper
             else { return new MyJson.JsonNode_Array(); }
         }
 
-
-
         public static void DelData(string mongodbConnStr, string mongodbDatabase, string coll, string findFliter)
         {
             var client = new MongoClient(mongodbConnStr);
@@ -182,6 +182,38 @@ namespace SnapshotAndAirdrop.Helper
             }
             else { return new MyJson.JsonNode_Array(); }
         }
+
+
+
+        public static void SetIndex(string mongodbConnStr, string mongodbDatabase, string coll, string indexDefinition, string indexName, bool isUnique = false)
+        {
+            var client = new MongoClient(mongodbConnStr);
+            var database = client.GetDatabase(mongodbDatabase);
+            var collection = database.GetCollection<BsonDocument>(coll);
+
+            //检查是否已有设置index
+            bool isSet = false;
+            using (var cursor = collection.Indexes.List())
+            {
+                JArray JAindexs = JArray.Parse(cursor.ToList().ToJson());
+                var query = JAindexs.Children().Where(index => (string)index["name"] == indexName);
+                if (query.Count() > 0) isSet = true;
+                // do something with the list...
+            }
+
+            if (!isSet)
+            {
+                try
+                {
+                    var options = new CreateIndexOptions { Name = indexName, Unique = isUnique };
+                    collection.Indexes.CreateOne(indexDefinition, options);
+                }
+                catch { }
+            }
+
+            client = null;
+        }
+
 
     }
 }

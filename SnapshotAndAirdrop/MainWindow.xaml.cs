@@ -35,14 +35,13 @@ namespace SnapshotAndAirdrop
         private void Init()
         {
             this.assetType.SelectedIndex = 0;
-            this.assetId_airdrop.Items.Clear();
+            this.assetType2.SelectedIndex = 0;
             this.assetId_airdrop2.Items.Clear();
 
             foreach (string key in Config.Ins.nep5s.Keys)
             {
                 ComboBoxItem comboBoxItem = new ComboBoxItem();
                 comboBoxItem.Content = key;
-                this.assetId_airdrop.Items.Add(comboBoxItem);
                 ComboBoxItem comboBoxItem2 = new ComboBoxItem();
                 comboBoxItem2.Content = key;
                 this.assetId_award.Items.Add(comboBoxItem2);
@@ -77,7 +76,31 @@ namespace SnapshotAndAirdrop
                 }
             }
             this.assetId.SelectedIndex = 0;
+        }
 
+        private void assetType2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.assetId2.Items.Clear();
+            if (this.assetType2.SelectedIndex == 0)
+            {//全局资产
+
+                foreach (string key in Config.Ins.assets.Keys)
+                {
+                    ComboBoxItem comboBoxItem = new ComboBoxItem();
+                    comboBoxItem.Content = key;
+                    this.assetId2.Items.Add(comboBoxItem);
+                }
+            }
+            else if (this.assetType2.SelectedIndex == 1)
+            {//nep5资产
+                foreach (string key in Config.Ins.nep5s.Keys)
+                {
+                    ComboBoxItem comboBoxItem = new ComboBoxItem();
+                    comboBoxItem.Content = key;
+                    this.assetId2.Items.Add(comboBoxItem);
+                }
+            }
+            this.assetId2.SelectedIndex = 0;
         }
 
         private bool _lock = false;
@@ -108,12 +131,14 @@ namespace SnapshotAndAirdrop
                 assetSnapshotTask.deleRuntime += RuntimeCallBack_Snapshot;
                 assetSnapshotTask.deleResult += ResultCallBack_Snapshot;
                 var assetid = Config.Ins.assets[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+                var sendAssetid = Config.Ins.assets[(this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+                var sendCount = this.sendCount.Text;
                 var height = this.height.Text;
                 var snapshotColl = this.snapshotColl.Text;
                 if (string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(height) || string.IsNullOrEmpty(snapshotColl))
                     return;
 
-                assetSnapshotTask.StartTask(assetid, height, snapshotColl);
+                assetSnapshotTask.StartTask(assetid, height, sendAssetid, sendCount,snapshotColl);
             }
             else
             {//nep5资产分析
@@ -125,10 +150,12 @@ namespace SnapshotAndAirdrop
 
                 var assetid = Config.Ins.nep5s[(this.assetId.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
                 var height = this.height.Text;
+                var sendAssetid = Config.Ins.nep5s[(this.assetId2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+                var sendCount = this.sendCount.Text;
                 var snapshotColl = this.snapshotColl.Text;
                 if (string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(height) || string.IsNullOrEmpty(snapshotColl))
                     return;
-                nep5SnapshotTask.StartTask(assetid, height, snapshotColl);
+                nep5SnapshotTask.StartTask(assetid, height, sendAssetid, sendCount, snapshotColl);
             }
         }
 
@@ -206,39 +233,28 @@ namespace SnapshotAndAirdrop
             item2.Content = "";
             this.details_airdrop.Items.Add(item2);
 
-
-            string assetid = "";
-            if (Config.Ins.nep5s.ContainsKey((this.assetId_airdrop.SelectedItem as ComboBoxItem).Content.ToString()))
-            {
-                assetid = Config.Ins.nep5s[(this.assetId_airdrop.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
-            }
-
-            var ratio = this.ratio.Text;
             var snapshotColl = this.snapshotColl_airdrop.Text;
 
-            if (priKey == null || string.IsNullOrEmpty(assetid) || string.IsNullOrEmpty(ratio) || string.IsNullOrEmpty(snapshotColl))
+            if (priKey == null || string.IsNullOrEmpty(snapshotColl))
             {
                 _lock = false;
                 MessageBox.Show("参数错误");
                 return;
             }
 
-            //重新刷一下余额
-            Getbalance();
-
             //需要空头出去的钱
-            var value = decimal.Parse(ratio,System.Globalization.NumberStyles.Float) * decimal.Parse(this.total.Content.ToString(),System.Globalization.NumberStyles.Float);
+            var appliedSend = this.appliedSendTotal.Content;
+            var send = this.sendTotal.Content;
 
-            var mb = MessageBox.Show("需要空投：" + value + "  当前拥有：" + this.balance.Content.ToString(),"",MessageBoxButton.OKCancel);
+            var mb = MessageBox.Show("需要空投：" + appliedSend, "",MessageBoxButton.OKCancel);
             if (mb == MessageBoxResult.OK)
             {
-
                 AirdropTask airdropTask = new AirdropTask();
                 airdropTask.deleResult = null;
                 airdropTask.deleRuntime = null;
                 airdropTask.deleRuntime += RuntimeCallBack_Airdrop;
                 airdropTask.deleResult += ResultCallBack_Airdrop;
-                airdropTask.StartTask(priKey, assetid, value, ratio, snapshotColl);
+                airdropTask.StartTask(priKey, send, snapshotColl);
             }
             else
             {
@@ -283,6 +299,8 @@ namespace SnapshotAndAirdrop
             }
 
             decimal balance = 0;
+            decimal send = 0;
+            decimal appliedSend = 0;
 
             var count = mongoHelper.GetDataCount(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl);
             var looptime = count / 10000 + 1;
@@ -293,48 +311,24 @@ namespace SnapshotAndAirdrop
                 {
                     if (Ja_addressInfo[ii].AsDict().ContainsKey("balance"))
                     {
-                        balance += decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(),System.Globalization.NumberStyles.Float); ;
+                        balance += decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(),System.Globalization.NumberStyles.Float);
+                    }
+                    if (Ja_addressInfo[ii].AsDict().ContainsKey("send"))
+                    {
+                        send += decimal.Parse(Ja_addressInfo[ii].AsDict()["send"].AsDict()["$numberDecimal"].ToString(), System.Globalization.NumberStyles.Float);
+                    }
+                    if (Ja_addressInfo[ii].AsDict().ContainsKey("applied") && Ja_addressInfo[ii].AsDict()["applied"].AsBool())
+                    {
+                        appliedSend += decimal.Parse(Ja_addressInfo[ii].AsDict()["send"].AsDict()["$numberDecimal"].ToString(), System.Globalization.NumberStyles.Float);
                     }
                 }
             }
 
-            this.total.Content = balance;
+            this.snapshotTotal.Content = balance;
+            this.sendTotal.Content = send;
+            this.appliedSendTotal.Content = appliedSend;
         }
 
-        private void AssetId2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            Getbalance();
-        }
-
-        private void Getbalance()
-        {
-            string address = this.address.Content.ToString();
-
-            if (string.IsNullOrEmpty(address))
-            {
-                MessageBox.Show("请先输入地址");
-                return;
-            }
-
-            try
-            {
-                string assetid = "";
-                if (Config.Ins.nep5s.ContainsKey((this.assetId_airdrop.SelectedItem as ComboBoxItem).Content.ToString()))
-                {
-                    assetid = Config.Ins.nep5s[(this.assetId_airdrop.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
-                    byte[] postdata;
-                    var url = HttpHelper.MakeRpcUrlPost(Config.Ins.url, "getnep5balanceofaddress", out postdata, new MyJson.JsonNode_ValueString(assetid), new MyJson.JsonNode_ValueString(address));
-                    var result = HttpHelper.HttpPost(url, postdata);
-                    MyJson.JsonNode_Array jsonArray = MyJson.Parse(result).AsDict()["result"].AsList();
-                    this.balance.Content = jsonArray[0].AsDict()["nep5balance"];
-                }
-            }
-            catch
-            {
-
-            }
-
-        }
 
         private void Button_Click_award(object sender, RoutedEventArgs e)
         {
@@ -420,37 +414,44 @@ namespace SnapshotAndAirdrop
 
         private void GetBalanceOf(object sender, RoutedEventArgs e)
         {
-            var asset = Config.Ins.nep5s[(this.assetId_airdrop2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
-            var height = 0;
-            int.TryParse(this.snapshot_height.Text,out height);
-            var address = this.snapshot_address.Text;
-            if (string.IsNullOrEmpty(asset) || height == 0 || string.IsNullOrEmpty(address))
+            try
             {
-                MessageBox.Show("请填入正确的参数");
-                return;
+                var asset = Config.Ins.nep5s[(this.assetId_airdrop2.SelectedItem as ComboBoxItem).Content.ToString()].ToString();
+                var height = 0;
+                int.TryParse(this.snapshot_height.Text, out height);
+                var address = this.snapshot_address.Text;
+                if (string.IsNullOrEmpty(asset) || height == 0 || string.IsNullOrEmpty(address))
+                {
+                    MessageBox.Show("请填入正确的参数");
+                    return;
+                }
+                var balance = decimal.Zero;
+                MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, from = address })));
+                for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
+                {
+                    var str = Ja_Nep5transferInfo[i].ToString();
+                    int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
+                    if (blockindex <= height)
+                        balance -= decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value, System.Globalization.NumberStyles.Float);
+
+                }
+
+                Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll, ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, to = address })));
+                for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
+                {
+                    var str = Ja_Nep5transferInfo[i].ToString();
+                    int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
+                    if (blockindex <= height)
+                        balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value, System.Globalization.NumberStyles.Float);
+
+                }
+
+                this.balanceof.Content = "余额：" + balance;
             }
-            var balance = decimal.Zero;
-            MyJson.JsonNode_Array Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, from = address })));
-            for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
+            catch
             {
-                var str = Ja_Nep5transferInfo[i].ToString();
-                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
-                if (blockindex <= height)
-                    balance -=decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value,System.Globalization.NumberStyles.Float);
-
+                MessageBox.Show("参数异常");
             }
-
-            Ja_Nep5transferInfo = mongoHelper.GetData(Config.Ins.NEP5Transfer_Conn, Config.Ins.NEP5Transfer_DB, Config.Ins.NEP5Transfer_Coll,ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new NEP5Transfer() { asset = asset, to = address })));
-            for (var i = 0; i < Ja_Nep5transferInfo.Count; i++)
-            {
-                var str = Ja_Nep5transferInfo[i].ToString();
-                int blockindex = JsonConvert.DeserializeObject<NEP5Transfer>(str).blockindex;
-                if (blockindex <= height)
-                    balance += decimal.Parse(JsonConvert.DeserializeObject<NEP5Transfer>(str).value,System.Globalization.NumberStyles.Float);
-
-            }
-
-            this.balanceof.Content = "余额：" + balance;
         }
     }
 }

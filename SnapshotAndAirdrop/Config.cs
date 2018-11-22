@@ -43,9 +43,16 @@ namespace SnapshotAndAirdrop
         public string NEP5Transfer_Conn { private set; get; }
         public string NEP5Transfer_DB { private set; get; }
         public string NEP5Transfer_Coll { private set; get; }
+        //asset
+        public string Asset_Conn { private set; get; }
+        public string Asset_DB { private set; get; }
+        public string Asset_Coll { private set; get; }
+        public string NEP5Asset_Coll { private set; get; }
         //快照
         public string Snapshot_Conn { private set; get; }
         public string Snapshot_DB { private set; get; }
+        public string CurrentDb_Coll { private set; get; }
+        public string Snapshot_Current_Coll { private set; get; }
         //nns奖励发放
         public string Applyfornnc_Conn { private set; get; }
         public string Applyfornnc_DB { private set; get; }
@@ -73,8 +80,14 @@ namespace SnapshotAndAirdrop
             NEP5Transfer_Conn = config["NEP5Transfer_Conn"];
             NEP5Transfer_DB = config["NEP5Transfer_DB"];
             NEP5Transfer_Coll = config["NEP5Transfer_Coll"];
+            Asset_Conn = config["Asset_Conn"];
+            Asset_DB = config["Asset_DB"];
+            Asset_Coll = config["Asset_Coll"];
+            NEP5Asset_Coll = config["NEP5Asset_Coll"];
             Snapshot_Conn = config["Snapshot_Conn"];
             Snapshot_DB = config["Snapshot_DB"];
+            CurrentDb_Coll = config["CurrentDb_Coll"];
+            Snapshot_Current_Coll = config["Snapshot_Current_Coll"];
             Applyfornnc_Conn = config["Applyfornnc_Conn"];
             Applyfornnc_DB = config["Applyfornnc_DB"];
             Applyfornnc_Coll = config["Applyfornnc_Coll"];
@@ -114,13 +127,22 @@ namespace SnapshotAndAirdrop
     public struct Snapshot
     {
         public string addr;
+        public string assetid;
         public BsonDecimal128 balance;
         public BsonDecimal128 send;
         public string txid;
-        public string sendAssetId;
+        public string sendAssetid;
         public UInt32 height;
+        public bool applied;
     }
 
+    //资产详情
+    public struct AssetInfo
+    {
+        public string assetid;
+        public decimal decimals;
+        public decimal totoalSupply;
+    }
 
     public struct NnsAward
     {

@@ -19,7 +19,13 @@ namespace SnapshotAndAirdrop.Handle
             //分析参数
             string assetid = (string)args[0];
             UInt32 height = UInt32.Parse((string)args[1]);
-            string snapshopColl = (string)args[2];
+            string sendAssetid = (string)args[2];
+            decimal sendCount = decimal.Parse((string)args[3]);
+            string snapshopColl = (string)args[4];
+
+            //获取快照资产的详情
+            AssetInfo assetInfo = GetAssetInfo(assetid);
+
             //获取已有地址个数 分段处理
             var count = mongoHelper.GetDataCount(Config.Ins.Address_Conn, Config.Ins.Address_DB, Config.Ins.Address_Coll);
             var looptime = count / 10000 + 1;
@@ -45,15 +51,28 @@ namespace SnapshotAndAirdrop.Handle
                     {
                         Snapshot snapshot = new Snapshot();
                         snapshot.addr = address;
+                        snapshot.assetid = assetid;
                         snapshot.balance = BsonDecimal128.Create(value);
+                        snapshot.send = BsonDecimal128.Create(((value / assetInfo.totoalSupply) * sendCount).ToString("F8"));
+                        snapshot.sendAssetid = sendAssetid;
+                        snapshot.txid = "";
                         snapshot.height = height;
+                        snapshot.applied = false;
                         findFliter =ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new Snapshot() { addr = address }));
                         mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, findFliter, BsonDocument.Create(snapshot));
                     }
                 }
             }
+
+
+            //更新最新的分红数据表
+            mongoHelper.DelData(Config.Ins.Snapshot_Conn,Config.Ins.Snapshot_DB,Config.Ins.CurrentDb_Coll, "{}");
+            mongoHelper.InsetOne(Config.Ins.Snapshot_Conn,Config.Ins.Snapshot_DB,Config.Ins.CurrentDb_Coll, BsonDocument.Parse("{CurrentColl:\""+ snapshopColl + "\"}"));
             deleResult("完成");
         }
+
+
+
     }
 
     class Nep5SnapshotTask : PTask
@@ -63,7 +82,12 @@ namespace SnapshotAndAirdrop.Handle
             //分析参数
             string assetid = (string)args[0];
             UInt32 height = UInt32.Parse((string)args[1]);
-            string snapshopColl = (string)args[2];
+            string sendAssetid = (string)args[2];
+            decimal sendCount = decimal.Parse((string)args[3]);
+            string snapshopColl = (string)args[4];
+
+            //获取快照资产的详情
+            AssetInfo assetInfo = GetAssetInfo(assetid);
 
             //获取这个资产的所有的nep5交易来进行资产的分析
             NEP5Transfer nEP5Transfer = new NEP5Transfer();
@@ -108,7 +132,17 @@ namespace SnapshotAndAirdrop.Handle
                             }
 
                             string whereFliter = findFliter;
-                            var findFliter_Snapshot = new Snapshot() { addr = from, balance = BsonDecimal128.Create(balance), height = height};
+                            var findFliter_Snapshot = new Snapshot()
+                            {
+                                addr = from,
+                                balance = BsonDecimal128.Create(balance),
+                                height = height,
+                                assetid = assetid,
+                                sendAssetid = sendAssetid,
+                                txid = "",
+                                applied = false,
+                                send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
+                            };
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
                         }
                         if (!string.IsNullOrEmpty(to))
@@ -127,7 +161,17 @@ namespace SnapshotAndAirdrop.Handle
                                 balance = balance + value;
                             }
                             string whereFliter = findFliter;
-                            var findFliter_Snapshot = new Snapshot() { addr = to, balance = BsonDecimal128.Create(balance), height = height};
+                            var findFliter_Snapshot = new Snapshot()
+                            {
+                                addr = to,
+                                balance = BsonDecimal128.Create(balance),
+                                assetid = assetid,
+                                height = height,
+                                sendAssetid = sendAssetid,
+                                txid = "",
+                                applied = false,
+                                send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
+                            };
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
                         }
                     }
@@ -135,6 +179,12 @@ namespace SnapshotAndAirdrop.Handle
                     deleRuntime(((i - 1) * 1000 + ii+1) + "/" + count);
                 }
             }
+
+
+            //更新最新的分红数据表
+            mongoHelper.DelData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, Config.Ins.CurrentDb_Coll, "{}");
+            mongoHelper.InsetOne(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, Config.Ins.CurrentDb_Coll, BsonDocument.Parse("{CurrentColl:\"" + snapshopColl + "\"}"));
+
             deleResult("完成");
         }
     }
