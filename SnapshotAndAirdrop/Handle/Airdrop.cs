@@ -47,8 +47,9 @@ namespace SnapshotAndAirdrop.Handle
                     assetid = Ja_addressInfo[ii].AsDict()["assetid"].ToString();
                     var send =decimal.Parse(Ja_addressInfo[ii].AsDict()["send"].AsDict()["$numberDecimal"].ToString());
                     height = (uint)Ja_addressInfo[ii].AsDict()["height"].AsInt();
+                    var totoalSend = decimal.Parse(Ja_addressInfo[ii].AsDict()["totalSend"].AsDict()["$numberDecimal"].ToString());
                     var balance = decimal.Parse(Ja_addressInfo[ii].AsDict()["balance"].AsDict()["$numberDecimal"].ToString(),System.Globalization.NumberStyles.Float);
-                    Send(priKey,assetid,sendAssetid,addr, balance, send, sendAssetDecimals, height, snapshotColl);
+                    Send(priKey,assetid,sendAssetid,addr, balance, send, totoalSend, sendAssetDecimals, height, snapshotColl);
                     System.Threading.Thread.Sleep(500);
                     deleRuntime(((i - 1) * 1000 + ii + 1) + "/" + count);
                 }
@@ -66,7 +67,7 @@ namespace SnapshotAndAirdrop.Handle
         }
 
 
-        private void Send(byte[] priKey, string assetid, string sendAssetid,string addr, decimal balance, decimal send,decimal sendAssetDecimals,UInt32 height,string snapshotColl)
+        private void Send(byte[] priKey, string assetid, string sendAssetid,string addr, decimal balance, decimal send, decimal totalSend, decimal sendAssetDecimals,UInt32 height,string snapshotColl)
         {
             try
             {
@@ -137,6 +138,7 @@ namespace SnapshotAndAirdrop.Handle
                         snapshot.applied = true;
                         snapshot.assetid = assetid;
                         snapshot.height = height;
+                        snapshot.totalSend = BsonDecimal128.Create(totalSend);
 
                         mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshotColl, ToolHelper.RemoveUndefinedParams(JsonConvert.SerializeObject(new Snapshot() { addr = addr ,applied = true })), snapshot);
 

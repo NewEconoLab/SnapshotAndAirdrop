@@ -54,6 +54,7 @@ namespace SnapshotAndAirdrop.Handle
                         snapshot.assetid = assetid;
                         snapshot.balance = BsonDecimal128.Create(value);
                         snapshot.send = BsonDecimal128.Create(((value / assetInfo.totoalSupply) * sendCount).ToString("F8"));
+                        snapshot.totalSend = BsonDecimal128.Create(sendCount);
                         snapshot.sendAssetid = sendAssetid;
                         snapshot.txid = "";
                         snapshot.height = height;
@@ -141,6 +142,7 @@ namespace SnapshotAndAirdrop.Handle
                                 sendAssetid = sendAssetid,
                                 txid = "",
                                 applied = false,
+                                totalSend = BsonDecimal128.Create(sendCount),
                                 send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
                             };
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
@@ -170,6 +172,7 @@ namespace SnapshotAndAirdrop.Handle
                                 sendAssetid = sendAssetid,
                                 txid = "",
                                 applied = false,
+                                totalSend = BsonDecimal128.Create(sendCount),
                                 send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
                             };
                             mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);

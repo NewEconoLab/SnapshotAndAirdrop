@@ -130,6 +130,7 @@ namespace SnapshotAndAirdrop
         public string assetid;
         public BsonDecimal128 balance;
         public BsonDecimal128 send;
+        public BsonDecimal128 totalSend;
         public string txid;
         public string sendAssetid;
         public UInt32 height;
