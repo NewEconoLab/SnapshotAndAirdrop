@@ -145,7 +145,10 @@ namespace SnapshotAndAirdrop.Handle
                                 totalSend = BsonDecimal128.Create(sendCount),
                                 send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
                             };
-                            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
+                            if (balance <= 0)
+                                mongoHelper.DelData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter);
+                            else
+                                mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
                         }
                         if (!string.IsNullOrEmpty(to))
                         {
@@ -175,7 +178,11 @@ namespace SnapshotAndAirdrop.Handle
                                 totalSend = BsonDecimal128.Create(sendCount),
                                 send = BsonDecimal128.Create(((balance / assetInfo.totoalSupply) * sendCount).ToString("F8"))
                             };
-                            mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
+
+                            if (balance <= 0)
+                                mongoHelper.DelData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter);
+                            else
+                                mongoHelper.ReplaceData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, snapshopColl, whereFliter, findFliter_Snapshot);
                         }
                     }
 
