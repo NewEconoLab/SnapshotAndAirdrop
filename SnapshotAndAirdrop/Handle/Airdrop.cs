@@ -102,7 +102,7 @@ namespace SnapshotAndAirdrop.Handle
                         array.AddArrayValue("(int)" + (BigInteger)_send);
                         sb.EmitParamJson(array);
                         sb.EmitPushString("transfer");
-                        sb.EmitAppCall(new Hash160(assetid));
+                        sb.EmitAppCall(new Hash160(sendAssetid));
                         data = sb.ToArray();
                     }
 
