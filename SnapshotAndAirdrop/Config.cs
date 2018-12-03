@@ -160,4 +160,14 @@ namespace SnapshotAndAirdrop
         public BsonDecimal128 totalValue;
         public UInt32 height;
     }
+
+
+    public struct CurrentDb
+    {
+        public string currentColl;
+        public string assetid;
+        public BsonDecimal128 totalValue;
+        public UInt32 height;
+        public string sendAssetid;
+    }
 }

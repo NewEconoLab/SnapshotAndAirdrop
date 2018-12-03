@@ -193,7 +193,14 @@ namespace SnapshotAndAirdrop.Handle
 
             //更新最新的分红数据表
             mongoHelper.DelData(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, Config.Ins.CurrentDb_Coll, "{}");
-            mongoHelper.InsetOne(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, Config.Ins.CurrentDb_Coll, BsonDocument.Parse("{CurrentColl:\"" + snapshopColl + "\"}"));
+            CurrentDb currentDb = new CurrentDb();
+            currentDb.currentColl = snapshopColl;
+            currentDb.height = height;
+            currentDb.totalValue = BsonDecimal128.Create(sendCount);
+            currentDb.assetid = assetid;
+            currentDb.sendAssetid = sendAssetid;
+
+            mongoHelper.InsetOne(Config.Ins.Snapshot_Conn, Config.Ins.Snapshot_DB, Config.Ins.CurrentDb_Coll, currentDb);
 
             deleResult("完成");
         }
